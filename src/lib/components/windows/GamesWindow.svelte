@@ -389,6 +389,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
  }
 
@@ -494,33 +495,6 @@
   color: #cdd6f4;
   margin: 0;
   line-height: 1.2;
- }
-
- .user-comment {
-  font-size: 16px;
-  color: #89b4fa;
-  font-style: italic;
-  padding: 12px;
-  background: rgba(137, 180, 250, 0.1);
-  border-left: 3px solid #89b4fa;
-  border-radius: 6px;
- }
-
- .detail-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
- }
-
- .detail-tag {
-  padding: 6px 14px;
-  background: rgba(203, 166, 247, 0.2);
-  border: 1px solid rgba(203, 166, 247, 0.4);
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #cba6f7;
-  text-transform: uppercase;
  }
 
  .metadata-grid {
