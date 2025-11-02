@@ -5,6 +5,18 @@ export const PremiumType = {
  3: "Nitro Basic",
 } as const;
 
+export interface Guild {
+ id: string;
+ name: string;
+ icon: string | null; // https://cdn.discordapp.com/icons/<id>/<icon>.<icon starts with a_ ? .gif : .webp>?size=4096
+ banner: string | null; // https://cdn.discordapp.com/banners/<id>/<banner>.<banner starts with a_ ? .gif : .webp>?size=4096
+ owner: boolean;
+ permissions: string;
+ features: string[];
+ approximate_member_count: number;
+ approximate_presence_count: number;
+}
+
 export interface User {
  user: User;
  username: string;

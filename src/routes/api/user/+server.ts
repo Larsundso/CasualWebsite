@@ -1,12 +1,18 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { TOKEN } from "$env/static/private";
-import type { Connection, SupplementalGame, User } from "$lib/types/discord";
+import type {
+ Connection,
+ Guild,
+ SupplementalGame,
+ User,
+} from "$lib/types/discord";
 
 export type GETUser = {
  user: User;
  connections: Connection[];
  games: { supplemental_game_data: SupplementalGame[] };
+ guilds: Guild[];
 };
 
 let cached: GETUser | null = null;
@@ -56,7 +62,20 @@ export const GET: RequestHandler = async (req) => {
   )
   .then((r) => r.json());
 
- cached = { user, connections, games: supplementalGames };
+ const guilds = await req
+  .fetch("https://discord.com/api/v9//users/@me/guilds?with_counts=true", {
+   headers: { authorization: TOKEN },
+  })
+  .then((r) => r.json() as Promise<Guild[]>)
+  .then((g) =>
+   g.filter(
+    (guild) =>
+     guild.approximate_member_count >= 100 &&
+     (guild.owner || BigInt(guild.permissions) & 32n) === 32n
+   )
+  );
+
+ cached = { user, connections, games: supplementalGames, guilds };
 
  return json(cached);
 };
