@@ -154,6 +154,13 @@
 		gap: 16px;
 	}
 
+	@media (max-width: 768px) {
+		.servers-grid {
+			grid-template-columns: 1fr;
+			gap: 12px;
+		}
+	}
+
 	.server-card {
 		background: rgba(0, 0, 0, 0.4);
 		border: 1px solid rgba(137, 180, 250, 0.2);
@@ -379,5 +386,74 @@
 
 	.servers-window::-webkit-scrollbar-thumb:hover {
 		background: rgba(137, 180, 250, 0.5);
+	}
+
+	/* Mobile */
+	@media (max-width: 768px) {
+		.servers-window {
+			padding: 12px;
+		}
+
+		.servers-title {
+			font-size: 20px;
+			margin-bottom: 16px;
+		}
+
+		.server-card {
+			border-radius: 8px;
+		}
+
+		.server-banner {
+			height: 100px;
+			border-radius: 7px 7px 0 0;
+		}
+
+		.server-content {
+			padding: 12px;
+		}
+
+		.server-header {
+			flex-direction: column;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.server-icon {
+			width: 80px;
+			height: 80px;
+		}
+
+		.server-badges {
+			justify-content: center;
+		}
+
+		.badge {
+			width: 36px;
+			height: 36px;
+		}
+
+		.server-info {
+			text-align: center;
+		}
+
+		.server-name {
+			font-size: 18px;
+			white-space: normal;
+			text-align: center;
+		}
+
+		.server-stats {
+			justify-content: center;
+			gap: 16px;
+		}
+
+		.stat {
+			font-size: 14px;
+		}
+
+		.badge[data-tooltip]::after {
+			font-size: 13px;
+			padding: 8px 12px;
+		}
 	}
 </style>

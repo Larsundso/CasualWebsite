@@ -381,4 +381,79 @@
   z-index: 1;
   filter: drop-shadow(0 0 8px rgba(248, 113, 113, 0.6));
  }
+
+ /* Mobile */
+ @media (max-width: 768px) {
+  .sidebar {
+   left: 0;
+   right: 0;
+   top: auto;
+   bottom: 0;
+   width: 100%;
+   height: 70px;
+   flex-direction: row;
+   justify-content: flex-start;
+   align-items: center;
+   padding: 8px 12px;
+   gap: 12px;
+   border-right: none;
+   border-top: 1px solid rgba(205, 214, 244, 0.1);
+   background: linear-gradient(
+    0deg,
+    rgba(30, 30, 46, 0.98),
+    rgba(24, 24, 37, 0.98)
+   );
+   overflow-x: auto;
+   overflow-y: hidden;
+   scrollbar-width: none;
+  }
+
+  .sidebar::-webkit-scrollbar {
+   display: none;
+  }
+
+  .sidebar-header {
+   display: none;
+  }
+
+  .sidebar-apps {
+   display: flex;
+   flex-direction: row;
+   gap: 12px;
+   flex: 1;
+   overflow-x: auto;
+   overflow-y: hidden;
+   scrollbar-width: none;
+   align-items: center;
+  }
+
+  .sidebar-apps::-webkit-scrollbar {
+   display: none;
+  }
+
+  .sidebar-app {
+   width: 48px;
+   height: 48px;
+   flex-shrink: 0;
+  }
+
+  .sidebar-workspaces {
+   display: none;
+  }
+
+  .sidebar-stats {
+   display: none;
+  }
+
+  .sidebar-clock {
+   display: none;
+  }
+
+  .shutdown-button {
+   width: 48px;
+   height: 48px;
+   margin-top: 0;
+   flex-shrink: 0;
+  }
+ }
 </style>

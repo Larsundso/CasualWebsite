@@ -1061,4 +1061,117 @@
    background: #000000;
   }
  }
+
+ /* mobile */
+
+ @media (max-width: 768px) {
+  .boot-container {
+   padding: 12px;
+  }
+
+  .system-bar {
+   gap: 12px;
+   padding: 10px 12px;
+   flex-wrap: wrap;
+   justify-content: center;
+  }
+
+  .system-info {
+   gap: 8px;
+  }
+
+  .sys-label {
+   font-size: 9px;
+   letter-spacing: 1px;
+  }
+
+  .sys-value {
+   font-size: 9px;
+  }
+
+  .boot-main {
+   grid-template-columns: 1fr;
+   grid-template-rows: auto 1fr;
+   gap: 16px;
+  }
+
+  .boot-left {
+   padding: 20px;
+   gap: 20px;
+  }
+
+  .arch-logo-cyber {
+   width: 80px;
+   height: 80px;
+  }
+
+  .arch-logo-cyber svg {
+   width: 80px;
+   height: 80px;
+  }
+
+  .title-main {
+   font-size: 24px;
+   letter-spacing: 2px;
+  }
+
+  .title-sub {
+   font-size: 11px;
+   letter-spacing: 2px;
+  }
+
+  .status-text {
+   font-size: 12px;
+   letter-spacing: 1px;
+  }
+
+  .progress-text {
+   font-size: 14px;
+  }
+
+  .boot-right {
+   min-height: 300px;
+  }
+
+  .terminal-header {
+   padding: 10px 12px;
+  }
+
+  .terminal-prompt {
+   font-size: 11px;
+  }
+
+  .terminal-output {
+   padding: 12px;
+  }
+
+  .terminal-line {
+   font-size: 10px;
+   line-height: 1.5;
+  }
+
+  .terminal-line.progress-line {
+   font-size: 11px;
+  }
+
+  .stats-bar {
+   padding: 10px 12px;
+   flex-wrap: wrap;
+   gap: 8px;
+   justify-content: center;
+  }
+
+  .stat-item {
+   gap: 8px;
+  }
+
+  .stat-icon {
+   font-size: 8px;
+   letter-spacing: 1px;
+  }
+
+  .stat-text {
+   font-size: 9px;
+  }
+ }
 </style>

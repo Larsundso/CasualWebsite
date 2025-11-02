@@ -20,6 +20,10 @@ const visibleWindows = $derived(
  windows.filter((w) => w.workspace === currentWorkspace && !w.minimized)
 );
 
+function isMobile(): boolean {
+ return globalThis.innerWidth <= 768;
+}
+
 /**
  * Open a window (or bring to front if already open)
  */
@@ -33,30 +37,36 @@ export function openWindow(appId: string, title: string, icon: string) {
   return;
  }
 
+ const mobile = isMobile();
  const gap = 16;
- const baseX = 100 + gap;
- const baseY = 20 + gap;
+ const baseX = mobile ? 0 : 100 + gap;
+ const baseY = mobile ? 0 : 20 + gap;
+
+ const defaultWidth = mobile ? globalThis.innerWidth : 640;
+ const defaultHeight = mobile ? globalThis.innerHeight - 70 : 520;
 
  const newWindow: Window = {
   id: appId,
   title,
   icon,
   minimized: false,
-  maximized: false,
-  x: baseX + windows.length * 40,
-  y: baseY + windows.length * 40,
-  width:
-   appId === "profile" || appId === "servers"
-    ? 520
-    : appId === "games"
-    ? 700
-    : 640,
-  height:
-   appId === "profile" || appId === "servers"
-    ? 600
-    : appId === "games"
-    ? 650
-    : 520,
+  maximized: mobile,
+  x: mobile ? 0 : baseX + windows.length * 40,
+  y: mobile ? 0 : baseY + windows.length * 40,
+  width: mobile
+   ? globalThis.innerWidth
+   : appId === "profile" || appId === "servers"
+   ? 520
+   : appId === "games"
+   ? 700
+   : defaultWidth,
+  height: mobile
+   ? globalThis.innerHeight - 70
+   : appId === "profile" || appId === "servers"
+   ? 600
+   : appId === "games"
+   ? 650
+   : defaultHeight,
   zIndex: ++highestZIndex,
   workspace: currentWorkspace,
  };
@@ -89,6 +99,8 @@ export function maximizeWindow(appId: string) {
  const window = windows.find((w) => w.id === appId);
  if (!window) return;
 
+ const mobile = isMobile();
+
  if (window.maximized) {
   window.x = window.prevX || window.x;
   window.y = window.prevY || window.y;
@@ -101,10 +113,17 @@ export function maximizeWindow(appId: string) {
   window.prevWidth = window.width;
   window.prevHeight = window.height;
 
-  window.x = 96;
-  window.y = 16;
-  window.width = globalThis.innerWidth - 112;
-  window.height = globalThis.innerHeight - 32;
+  if (mobile) {
+   window.x = 0;
+   window.y = 0;
+   window.width = globalThis.innerWidth;
+   window.height = globalThis.innerHeight - 70;
+  } else {
+   window.x = 96;
+   window.y = 16;
+   window.width = globalThis.innerWidth - 112;
+   window.height = globalThis.innerHeight - 32;
+  }
   window.maximized = true;
  }
  windows = [...windows];

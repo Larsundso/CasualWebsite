@@ -68,11 +68,13 @@ export const GET: RequestHandler = async (req) => {
   })
   .then((r) => r.json() as Promise<Guild[]>)
   .then((g) =>
-   g.filter(
-    (guild) =>
-     guild.approximate_member_count >= 100 &&
-     (guild.owner || BigInt(guild.permissions) & 32n) === 32n
-   )
+   g
+    .filter(
+     (guild) =>
+      guild.approximate_member_count >= 100 &&
+      (guild.owner || BigInt(guild.permissions) & 32n) === 32n
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
   );
 
  cached = { user, connections, games: supplementalGames, guilds };
