@@ -1,0 +1,915 @@
+{
+ "/": {
+  "type": "dir",
+  "children": {
+   "bin": {
+    "type": "dir",
+    "children": {
+     "bash": { "type": "file", "content": "[binary: bash shell]" },
+     "zsh": { "type": "file", "content": "[binary: zsh shell]" },
+     "ls": { "type": "file", "content": "[binary: list directory]" },
+     "cat": { "type": "file", "content": "[binary: concatenate files]" },
+     "grep": { "type": "file", "content": "[binary: search text]" },
+     "sed": { "type": "file", "content": "[binary: stream editor]" },
+     "awk": { "type": "file", "content": "[binary: text processing]" },
+     "chmod": { "type": "file", "content": "[binary: change permissions]" },
+     "chown": { "type": "file", "content": "[binary: change owner]" },
+     "cp": { "type": "file", "content": "[binary: copy files]" },
+     "mv": { "type": "file", "content": "[binary: move files]" },
+     "rm": { "type": "file", "content": "[binary: remove files]" },
+     "mkdir": { "type": "file", "content": "[binary: make directory]" },
+     "rmdir": { "type": "file", "content": "[binary: remove directory]" },
+     "touch": { "type": "file", "content": "[binary: create file]" },
+     "nano": { "type": "file", "content": "[binary: text editor]" },
+     "vim": { "type": "file", "content": "[binary: vi improved]" },
+     "systemctl": { "type": "file", "content": "[binary: systemd control]" }
+    }
+   },
+
+   "boot": {
+    "type": "dir",
+    "children": {
+     "vmlinuz-linux": {
+      "type": "file",
+      "content": "[binary: Linux kernel 6.6.10]"
+     },
+     "initramfs-linux.img": {
+      "type": "file",
+      "content": "[binary: initial ramdisk]"
+     },
+     "initramfs-linux-fallback.img": {
+      "type": "file",
+      "content": "[binary: fallback initramfs]"
+     },
+     "grub": {
+      "type": "dir",
+      "children": {
+       "grub.cfg": {
+        "type": "file",
+        "content": "# GRUB Configuration\n set timeout=5\n set default=0\n \n menuentry 'Arch Linux' {\n    linux /vmlinuz-linux root=UUID=a3f2-4bd9 rw quiet\n    initrd /initramfs-linux.img\n }\n \n menuentry 'Arch Linux (fallback)' {\n    linux /vmlinuz-linux root=UUID=a3f2-4bd9 rw\n    initrd /initramfs-linux-fallback.img\n }"
+       }
+      }
+     }
+    }
+   },
+
+   "dev": {
+    "type": "dir",
+    "children": {
+     "null": { "type": "file", "content": "[device: null]" },
+     "zero": { "type": "file", "content": "[device: zero]" },
+     "random": { "type": "file", "content": "[device: random]" },
+     "urandom": { "type": "file", "content": "[device: urandom]" },
+     "sda": { "type": "file", "content": "[device: disk]" },
+     "sda1": { "type": "file", "content": "[device: partition 1]" },
+     "sda2": { "type": "file", "content": "[device: partition 2]" },
+     "nvme0n1": { "type": "file", "content": "[device: NVMe disk]" },
+     "nvme0n1p1": { "type": "file", "content": "[device: NVMe partition 1]" },
+     "tty": { "type": "file", "content": "[device: terminal]" },
+     "pts": { "type": "dir", "children": {} }
+    }
+   },
+
+   "etc": {
+    "type": "dir",
+    "children": {
+     "hostname": { "type": "file", "content": "arch\n" },
+     "hosts": {
+      "type": "file",
+      "content": "127.0.0.1   localhost\n ::1         localhost\n 127.0.1.1   arch.localdomain arch"
+     },
+     "os-release": {
+      "type": "file",
+      "content": "NAME=\"Arch Linux\"\n PRETTY_NAME=\"Arch Linux\"\n ID=arch\n BUILD_ID=rolling\n ANSI_COLOR=\"38;2;23;147;209\"\n HOME_URL=\"https://archlinux.org/\"\n DOCUMENTATION_URL=\"https://wiki.archlinux.org/\"\n SUPPORT_URL=\"https://bbs.archlinux.org/\"\n BUG_REPORT_URL=\"https://bugs.archlinux.org/\"\n LOGO=archlinux-logo"
+     },
+     "fstab": {
+      "type": "file",
+      "content": "# /etc/fstab: static file system information\n #\n # <file system>  <mount point>  <type>  <options>         <dump>  <pass>\n UUID=a3f2-4bd9   /              ext4    rw,relatime       0       1\n UUID=b4e8-5cd0   /boot          vfat    rw,relatime       0       2\n UUID=c5f9-6de1   /home          ext4    rw,relatime       0       2\n tmpfs            /tmp           tmpfs   defaults,noatime  0       0"
+     },
+     "sudoers": {
+      "type": "file",
+      "content": "## sudoers file\n root ALL=(ALL:ALL) ALL\n %wheel ALL=(ALL:ALL) ALL\n lolo ALL=(ALL) NOPASSWD: /usr/bin/systemctl"
+     },
+     "passwd": {
+      "type": "file",
+      "content": "root:x:0:0:root:/root:/bin/bash\n lolo:x:1000:1000:Lolo:/home/lolo:/usr/bin/zsh"
+     },
+     "group": {
+      "type": "file",
+      "content": "root:x:0:\n wheel:x:10:lolo\n users:x:100:lolo\n lolo:x:1000:"
+     },
+     "pacman.conf": {
+      "type": "file",
+      "content": "#\n # /etc/pacman.conf\n #\n [options]\n HoldPkg     = pacman glibc\n Architecture = auto\n Color\n CheckSpace\n VerbosePkgLists\n ParallelDownloads = 5\n \n [core]\n Include = /etc/pacman.d/mirrorlist\n \n [extra]\n Include = /etc/pacman.d/mirrorlist\n \n [multilib]\n Include = /etc/pacman.d/mirrorlist"
+     },
+     "pacman.d": {
+      "type": "dir",
+      "children": {
+       "mirrorlist": {
+        "type": "file",
+        "content": "##\n ## Arch Linux repository mirrorlist\n ##\n Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch\n Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch\n Server = https://mirrors.mit.edu/archlinux/$repo/os/$arch"
+       }
+      }
+     },
+     "systemd": {
+      "type": "dir",
+      "children": {
+       "system": {
+        "type": "dir",
+        "children": {
+         "multi-user.target": { "type": "file", "content": "[systemd unit]" },
+         "graphical.target": { "type": "file", "content": "[systemd unit]" }
+        }
+       }
+      }
+     },
+     "profile": {
+      "type": "file",
+      "content": "# /etc/profile\n export PATH=\"/usr/local/sbin:/usr/local/bin:/usr/bin\"\n export EDITOR=nvim\n export VISUAL=nvim"
+     },
+     "bash.bashrc": {
+      "type": "file",
+      "content": "# /etc/bash.bashrc\n PS1='[\\\\u@\\\\h \\\\W]\\\\$ '"
+     }
+    }
+   },
+
+   "home": {
+    "type": "dir",
+    "children": {
+     "lolo": {
+      "type": "dir",
+      "children": {
+       ".bashrc": {
+        "type": "file",
+        "content": "# ~/.bashrc\n # If not running interactively, don't do anything\n [[ $- != *i* ]] && return\n \n # Aliases\n alias ls='ls --color=auto'\n alias ll='ls -lah'\n alias grep='grep --color=auto'\n alias vim='nvim'\n alias vi='nvim'\n alias cat='bat'\n alias pacman='sudo pacman'\n alias yay='yay --color=auto'\n alias update='yay -Syu'\n alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'\n \n # Git aliases\n alias gs='git status'\n alias ga='git add'\n alias gc='git commit'\n alias gp='git push'\n alias gl='git log --oneline --graph'\n alias gd='git diff'\n \n # Directory shortcuts\n alias dev='cd ~/Projects'\n alias web='cd ~/Projects/me-website'\n \n # Prompt\n export PS1=\"[\\\\u@\\\\h \\\\W]\\\\$ \"\n \n # Environment\n export EDITOR=nvim\n export VISUAL=nvim\n export TERMINAL=kitty\n export BROWSER=firefox"
+       },
+       ".zshrc": {
+        "type": "file",
+        "content": "# ~/.zshrc\n # Path to oh-my-zsh installation\n export ZSH=\"$HOME/.oh-my-zsh\"\n \n # Theme\n ZSH_THEME=\"agnoster\"\n \n # Plugins\n plugins=(\n    git\n    zsh-autosuggestions\n    zsh-syntax-highlighting\n    docker\n    docker-compose\n    npm\n    node\n    rust\n    python\n )\n \n source $ZSH/oh-my-zsh.sh\n \n # User configuration\n export EDITOR='nvim'\n export VISUAL='nvim'\n export TERMINAL='kitty'\n export BROWSER='firefox'\n \n # Aliases\n alias ls='eza --icons'\n alias ll='eza -lah --icons'\n alias tree='eza --tree --icons'\n alias cat='bat'\n alias vim='nvim'\n alias vi='nvim'\n alias grep='rg'\n alias find='fd'\n alias df='duf'\n alias du='dust'\n alias top='btop'\n alias htop='btop'\n alias ps='procs'\n \n # Git aliases\n alias gs='git status'\n alias ga='git add'\n alias gc='git commit -m'\n alias gca='git commit --amend'\n alias gp='git push'\n alias gpl='git pull'\n alias gl='git log --oneline --graph --decorate'\n alias gd='git diff'\n alias gco='git checkout'\n alias gb='git branch'\n alias gm='git merge'\n \n # Package management\n alias pacman='sudo pacman'\n alias yay='yay --color=auto'\n alias update='yay -Syu'\n alias cleanup='sudo pacman -Rns $(pacman -Qtdq) 2>/dev/null'\n alias orphans='pacman -Qtdq'\n \n # Docker shortcuts\n alias dps='docker ps'\n alias dpsa='docker ps -a'\n alias di='docker images'\n alias dex='docker exec -it'\n alias dlogs='docker logs -f'\n alias dcu='docker-compose up -d'\n alias dcd='docker-compose down'\n \n # Directory navigation\n alias ..='cd ..'\n alias ...='cd ../..'\n alias ....='cd ../../..'\n alias dev='cd ~/Projects'\n alias docs='cd ~/Documents'\n alias dl='cd ~/Downloads'\n \n # System\n alias shutdown='systemctl poweroff'\n alias reboot='systemctl reboot'\n alias suspend='systemctl suspend'\n \n # Hyprland\n alias hypr='cd ~/.config/hypr'\n alias waybar='cd ~/.config/waybar'\n \n # Functions\n mkcd() { mkdir -p \"$1\" && cd \"$1\"; }\""
+       },
+       ".bash_profile": {
+        "type": "file",
+        "content": "# ~/.bash_profile\n [[ -f ~/.bashrc ]] && . ~/.bashrc\n \n # Autostart Hyprland\n if [ -z \"$DISPLAY\" ] && [ \"$XDG_VTNR\" = 1 ]; then\n  exec Hyprland\n fi"
+       },
+       ".profile": {
+        "type": "file",
+        "content": "# ~/.profile\n export PATH=\"$HOME/.local/bin:$PATH\"\n export XDG_CONFIG_HOME=\"$HOME/.config\"\n export XDG_DATA_HOME=\"$HOME/.local/share\"\n export XDG_CACHE_HOME=\"$HOME/.cache\"\n export XDG_STATE_HOME=\"$HOME/.local/state\""
+       },
+
+       ".config": {
+        "type": "dir",
+        "children": {
+         "hypr": {
+          "type": "dir",
+          "children": {
+           "hyprland.conf": {
+            "type": "file",
+            "content": "# Hyprland Configuration\n # See https://wiki.hyprland.org/\n \n # Monitor configuration\n monitor=,preferred,auto,1\n \n # Autostart\n exec-once = waybar\n exec-once = dunst\n exec-once = hyprpaper\n exec-once = /usr/lib/polkit-kde-authentication-agent-1\n \n # Input configuration\n input {\n    kb_layout = us\n    kb_options = caps:escape\n    follow_mouse = 1\n    touchpad {\n        natural_scroll = true\n        scroll_factor = 0.3\n    }\n    sensitivity = 0\n    accel_profile = flat\n }\n \n # General settings\n general {\n    gaps_in = 8\n    gaps_out = 16\n    border_size = 2\n    col.active_border = rgba(cba6f7ee) rgba(89b4faee) 45deg\n    col.inactive_border = rgba(585b70aa)\n    layout = dwindle\n    allow_tearing = false\n }\n \n # Decoration\n decoration {\n    rounding = 12\n    blur {\n        enabled = true\n        size = 8\n        passes = 3\n        new_optimizations = true\n        xray = false\n        ignore_opacity = false\n    }\n    drop_shadow = true\n    shadow_range = 20\n    shadow_render_power = 3\n    col.shadow = rgba(00000055)\n    dim_inactive = false\n    dim_strength = 0.1\n }\n \n # Animations\n animations {\n    enabled = true\n    bezier = myBezier, 0.05, 0.9, 0.1, 1.05\n    animation = windows, 1, 7, myBezier\n    animation = windowsOut, 1, 7, default, popin 80%\n    animation = border, 1, 10, default\n    animation = borderangle, 1, 8, default\n    animation = fade, 1, 7, default\n    animation = workspaces, 1, 6, default\n }\n \n # Layouts\n dwindle {\n    pseudotile = true\n    preserve_split = true\n }\n \n master {\n    new_is_master = true\n }\n \n # Gestures\n gestures {\n    workspace_swipe = true\n    workspace_swipe_fingers = 3\n }\n \n # Window rules\n windowrulev2 = float,class:^(kitty-float)$\n windowrulev2 = float,class:^(pavucontrol)$\n windowrulev2 = float,class:^(nm-connection-editor)$\n windowrulev2 = opacity 0.95 0.95,class:^(kitty)$\n windowrulev2 = opacity 0.95 0.95,class:^(code)$\n windowrulev2 = opacity 0.90 0.90,class:^(discord)$\n \n # Keybindings\n $mainMod = SUPER\n \n # Applications\n bind = $mainMod, RETURN, exec, kitty\n bind = $mainMod, Q, killactive\n bind = $mainMod, M, exit\n bind = $mainMod, E, exec, thunar\n bind = $mainMod, V, togglefloating\n bind = $mainMod, D, exec, rofi -show drun\n bind = $mainMod, P, pseudo\n bind = $mainMod, J, togglesplit\n bind = $mainMod, F, fullscreen\n \n # Screenshot\n bind = , PRINT, exec, grimblast copy area\n bind = SHIFT, PRINT, exec, grimblast copy screen\n \n # Window focus\n bind = $mainMod, left, movefocus, l\n bind = $mainMod, right, movefocus, r\n bind = $mainMod, up, movefocus, u\n bind = $mainMod, down, movefocus, d\n \n # Workspace switching\n bind = $mainMod, 1, workspace, 1\n bind = $mainMod, 2, workspace, 2\n bind = $mainMod, 3, workspace, 3\n bind = $mainMod, 4, workspace, 4\n bind = $mainMod, 5, workspace, 5\n bind = $mainMod, 6, workspace, 6\n bind = $mainMod, 7, workspace, 7\n bind = $mainMod, 8, workspace, 8\n bind = $mainMod, 9, workspace, 9\n bind = $mainMod, 0, workspace, 10\n \n # Move window to workspace\n bind = $mainMod SHIFT, 1, movetoworkspace, 1\n bind = $mainMod SHIFT, 2, movetoworkspace, 2\n bind = $mainMod SHIFT, 3, movetoworkspace, 3\n bind = $mainMod SHIFT, 4, movetoworkspace, 4\n bind = $mainMod SHIFT, 5, movetoworkspace, 5\n bind = $mainMod SHIFT, 6, movetoworkspace, 6\n bind = $mainMod SHIFT, 7, movetoworkspace, 7\n bind = $mainMod SHIFT, 8, movetoworkspace, 8\n bind = $mainMod SHIFT, 9, movetoworkspace, 9\n bind = $mainMod SHIFT, 0, movetoworkspace, 10\n \n # Mouse bindings\n bindm = $mainMod, mouse:272, movewindow\n bindm = $mainMod, mouse:273, resizewindow"
+           },
+           "hyprpaper.conf": {
+            "type": "file",
+            "content": "preload = ~/Pictures/Wallpapers/neko-city.png\n wallpaper = ,~/Pictures/Wallpapers/neko-city.png\n splash = false"
+           }
+          }
+         },
+
+         "kitty": {
+          "type": "dir",
+          "children": {
+           "kitty.conf": {
+            "type": "file",
+            "content": "# Kitty Configuration\n # Font\n font_family      JetBrains Mono Nerd Font\n bold_font        auto\n italic_font      auto\n bold_italic_font auto\n font_size 12.0\n \n # Cursor\n cursor_shape block\n cursor_blink_interval 0\n \n # Scrollback\n scrollback_lines 10000\n \n # Mouse\n mouse_hide_wait 3.0\n url_style curly\n open_url_with default\n \n # Performance\n repaint_delay 10\n input_delay 3\n sync_to_monitor yes\n \n # Bell\n enable_audio_bell no\n visual_bell_duration 0.0\n \n # Window\n remember_window_size  yes\n initial_window_width  640\n initial_window_height 400\n window_padding_width 8\n background_opacity 0.95\n dynamic_background_opacity yes\n \n # Tab bar\n tab_bar_edge bottom\n tab_bar_style powerline\n tab_powerline_style slanted\n \n # Color scheme - Catppuccin Mocha\n foreground              #CDD6F4\n background              #1E1E2E\n selection_foreground    #1E1E2E\n selection_background    #F5E0DC\n \n # Cursor colors\n cursor                  #F5E0DC\n cursor_text_color       #1E1E2E\n \n # Normal colors\n color0  #45475A\n color1  #F38BA8\n color2  #A6E3A1\n color3  #F9E2AF\n color4  #89B4FA\n color5  #F5C2E7\n color6  #94E2D5\n color7  #BAC2DE\n \n # Bright colors\n color8  #585B70\n color9  #F38BA8\n color10 #A6E3A1\n color11 #F9E2AF\n color12 #89B4FA\n color13 #F5C2E7\n color14 #94E2D5\n color15 #A6ADC8"
+           }
+          }
+         },
+
+         "waybar": {
+          "type": "dir",
+          "children": {
+           "config": {
+            "type": "file",
+            "content": "{\n    \"layer\": \"top\",\n    \"position\": \"top\",\n    \"height\": 40,\n    \"modules-left\": [\"hyprland/workspaces\", \"hyprland/window\"],\n    \"modules-center\": [\"clock\"],\n    \"modules-right\": [\"cpu\", \"memory\", \"network\", \"pulseaudio\", \"battery\", \"tray\"],\n \n    \"hyprland/workspaces\": {\n        \"format\": \"{icon}\",\n        \"format-icons\": {\n            \"1\": \"一\",\n            \"2\": \"二\",\n            \"3\": \"三\",\n            \"4\": \"四\",\n            \"5\": \"五\",\n            \"default\": \"〇\"\n        }\n    },\n \n    \"hyprland/window\": {\n        \"max-length\": 50\n    },\n \n    \"clock\": {\n        \"format\": \"{:%H:%M %a %d %b}\",\n        \"tooltip-format\": \"<big>{:%Y %B}</big>\\\\n<tt><small>{calendar}</small></tt>\"\n    },\n \n    \"cpu\": {\n        \"format\": \" {usage}%\",\n        \"tooltip\": false\n    },\n \n    \"memory\": {\n        \"format\": \" {}%\"\n    },\n \n    \"network\": {\n        \"format-wifi\": \" {essid}\",\n        \"format-ethernet\": \" Connected\",\n        \"format-disconnected\": \"⚠ Disconnected\"\n    },\n \n    \"pulseaudio\": {\n        \"format\": \"{icon} {volume}%\",\n        \"format-muted\": \" Muted\",\n        \"format-icons\": {\n            \"default\": [\"\", \"\", \"\"]\n        }\n    },\n \n    \"battery\": {\n        \"states\": {\n            \"warning\": 30,\n            \"critical\": 15\n        },\n        \"format\": \"{icon} {capacity}%\",\n        \"format-icons\": [\"\", \"\", \"\", \"\", \"\"]\n    }\n }"
+           },
+           "style.css": {
+            "type": "file",
+            "content": "* {\n    font-family: \"JetBrains Mono Nerd Font\";\n    font-size: 13px;\n }\n \n window#waybar {\n    background-color: rgba(30, 30, 46, 0.95);\n    border-bottom: 2px solid rgba(203, 166, 247, 0.5);\n    color: #cdd6f4;\n }\n \n #workspaces button {\n    padding: 0 10px;\n    background-color: transparent;\n    color: #89b4fa;\n    border-bottom: 2px solid transparent;\n }\n \n #workspaces button.active {\n    background-color: rgba(137, 180, 250, 0.2);\n    border-bottom: 2px solid #89b4fa;\n }\n \n #clock {\n    padding: 0 15px;\n    color: #cba6f7;\n    font-weight: bold;\n }\n \n #cpu, #memory, #network, #pulseaudio, #battery {\n    padding: 0 10px;\n }\n \n #battery.warning {\n    color: #f9e2af;\n }\n \n #battery.critical {\n    color: #f38ba8;\n }"
+           }
+          }
+         },
+
+         "nvim": {
+          "type": "dir",
+          "children": {
+           "init.lua": {
+            "type": "file",
+            "content": "-- Neovim Configuration\n vim.g.mapleader = \" \"\n \n -- Options\n vim.opt.number = true\n vim.opt.relativenumber = true\n vim.opt.tabstop = 2\n vim.opt.shiftwidth = 2\n vim.opt.expandtab = true\n vim.opt.smartindent = true\n vim.opt.wrap = false\n vim.opt.swapfile = false\n vim.opt.backup = false\n vim.opt.undofile = true\n vim.opt.hlsearch = false\n vim.opt.incsearch = true\n vim.opt.termguicolors = true\n vim.opt.scrolloff = 8\n vim.opt.signcolumn = \"yes\"\n vim.opt.updatetime = 50\n \n -- Keymaps\n vim.keymap.set(\"n\", \"<leader>pv\", vim.cmd.Ex)\n vim.keymap.set(\"n\", \"<leader>w\", \":w<CR>\")\n vim.keymap.set(\"n\", \"<leader>q\", \":q<CR>\")\n \n -- LSP Support\n local lsp_servers = {\n    \"tsserver\",\n    \"rust_analyzer\",\n    \"pyright\",\n    \"lua_ls\",\n    \"svelte\",\n    \"tailwindcss\"\n }\n \n -- Plugin manager: lazy.nvim\n require(\"lazy\").setup(plugins)"
+           }
+          }
+         },
+
+         "rofi": {
+          "type": "dir",
+          "children": {
+           "config.rasi": {
+            "type": "file",
+            "content": "configuration {\n    modi: \"drun,run,window\";\n    show-icons: true;\n    terminal: \"kitty\";\n    drun-display-format: \"{name}\";\n    disable-history: false;\n    sidebar-mode: false;\n }\n \n @theme \"catppuccin-mocha\""
+           }
+          }
+         },
+
+         "dunst": {
+          "type": "dir",
+          "children": {
+           "dunstrc": {
+            "type": "file",
+            "content": "[global]\n    monitor = 0\n    follow = mouse\n    geometry = \"300x5-16+48\"\n    progress_bar = true\n    progress_bar_height = 10\n    progress_bar_frame_width = 1\n    progress_bar_min_width = 150\n    progress_bar_max_width = 300\n    indicate_hidden = yes\n    shrink = no\n    transparency = 0\n    separator_height = 2\n    padding = 12\n    horizontal_padding = 12\n    frame_width = 2\n    frame_color = \"#89b4fa\"\n    separator_color = frame\n    sort = yes\n    idle_threshold = 120\n    font = JetBrains Mono 10\n    line_height = 0\n    markup = full\n    format = \"<b>%s</b>\\\\n%b\"\n    alignment = left\n    vertical_alignment = center\n    show_age_threshold = 60\n    word_wrap = yes\n    ellipsize = middle\n    ignore_newline = no\n    stack_duplicates = true\n    hide_duplicate_count = false\n    show_indicators = yes\n    icon_position = left\n    min_icon_size = 0\n    max_icon_size = 32\n    sticky_history = yes\n    history_length = 20\n    browser = /usr/bin/firefox\n    always_run_script = true\n    title = Dunst\n    class = Dunst\n    corner_radius = 12\n    mouse_left_click = close_current\n    mouse_middle_click = do_action\n    mouse_right_click = close_all\n \n [urgency_low]\n    background = \"#1e1e2e\"\n    foreground = \"#cdd6f4\"\n    timeout = 5\n \n [urgency_normal]\n    background = \"#1e1e2e\"\n    foreground = \"#cdd6f4\"\n    timeout = 10\n \n [urgency_critical]\n    background = \"#1e1e2e\"\n    foreground = \"#f38ba8\"\n    frame_color = \"#f38ba8\"\n    timeout = 0"
+           }
+          }
+         },
+
+         "Code": {
+          "type": "dir",
+          "children": {
+           "User": {
+            "type": "dir",
+            "children": {
+             "settings.json": {
+              "type": "file",
+              "content": "{\n    \"workbench.colorTheme\": \"Catppuccin Mocha\",\n    \"editor.fontFamily\": \"'JetBrains Mono', 'Fira Code', monospace\",\n    \"editor.fontSize\": 14,\n    \"editor.lineHeight\": 1.8,\n    \"editor.fontLigatures\": true,\n    \"editor.formatOnSave\": true,\n    \"editor.minimap.enabled\": false,\n    \"editor.bracketPairColorization.enabled\": true,\n    \"editor.guides.bracketPairs\": \"active\",\n    \"editor.renderWhitespace\": \"boundary\",\n    \"editor.cursorBlinking\": \"smooth\",\n    \"editor.cursorSmoothCaretAnimation\": \"on\",\n    \"files.autoSave\": \"afterDelay\",\n    \"files.autoSaveDelay\": 1000,\n    \"terminal.integrated.fontFamily\": \"JetBrains Mono Nerd Font\",\n    \"terminal.integrated.fontSize\": 13,\n    \"git.autofetch\": true,\n    \"git.confirmSync\": false,\n    \"eslint.autoFixOnSave\": true,\n    \"prettier.singleQuote\": true,\n    \"prettier.useTabs\": true,\n    \"svelte.enable-ts-plugin\": true\n }"
+             }
+            }
+           }
+          }
+         },
+
+         "git": {
+          "type": "dir",
+          "children": {
+           "config": {
+            "type": "file",
+            "content": "[user]\n    name = Lolo\n    email = lolo@arch.local\n    signingkey = 1A2B3C4D5E6F7G8H\n \n [core]\n    editor = nvim\n    autocrlf = input\n    whitespace = trailing-space,space-before-tab\n \n [init]\n    defaultBranch = main\n \n [pull]\n    rebase = true\n \n [push]\n    default = simple\n    followTags = true\n \n [merge]\n    conflictstyle = diff3\n    tool = vimdiff\n \n [diff]\n    colorMoved = zebra\n \n [alias]\n    co = checkout\n    br = branch\n    ci = commit\n    st = status\n    unstage = reset HEAD --\n    last = log -1 HEAD\n    visual = log --graph --oneline --decorate --all\n    amend = commit --amend --no-edit\n    undo = reset --soft HEAD^\n \n [color]\n    ui = auto\n \n [commit]\n    gpgsign = true"
+           },
+           "ignore": {
+            "type": "file",
+            "content": "# Node\n node_modules/\n npm-debug.log\n yarn-error.log\n \n # Build\n dist/\n build/\n .next/\n .svelte-kit/\n \n # Env\n .env\n .env.local\n .env.*.local\n \n # IDE\n .vscode/\n .idea/\n *.swp\n *.swo\n \n # OS\n .DS_Store\n Thumbs.db\n \n # Rust\n target/\n Cargo.lock\n \n # Python\n __pycache__/\n *.py[cod]\n venv/\n .venv/"
+           }
+          }
+         },
+
+         "starship.toml": {
+          "type": "file",
+          "content": "format = \"\"\"\n [┌───────────────────>](bold green)\n [│](bold green)$directory$rust$python$nodejs$git_branch$git_status\n [└─>](bold green) \"\"\"\n \n [directory]\n style = \"blue\"\n \n [character]\n success_symbol = \"[➜](bold green)\"\n error_symbol = \"[➜](bold red)\"\n \n [git_branch]\n symbol = \" \"\n style = \"bold purple\"\n \n [git_status]\n style = \"bold yellow\"\n ahead = \"⇡\\${count}\"\n diverged = \"⇕⇡\\${ahead_count}⇣\\${behind_count}\"\n behind = \"⇣\\${count}\"\n \n [nodejs]\n symbol = \" \"\n style = \"bold green\"\n \n [rust]\n symbol = \" \"\n style = \"bold red\"\n \n [python]\n symbol = \" \"\n style = \"bold yellow\""
+         },
+
+         "discord": {
+          "type": "dir",
+          "children": {
+           "settings.json": {
+            "type": "file",
+            "content": "{\n    \"theme\": \"dark\",\n    \"locale\": \"en-US\",\n    \"customTheme\": \"catppuccin-mocha\",\n    \"notifications\": {\n        \"desktop\": true,\n        \"sound\": true\n    }\n }"
+           }
+          }
+         }
+        }
+       },
+
+       ".local": {
+        "type": "dir",
+        "children": {
+         "bin": {
+          "type": "dir",
+          "children": {
+           "tmux-sessionizer": {
+            "type": "file",
+            "content": "#!/bin/bash\n# Custom tmux session manager"
+           },
+           "git-sync": {
+            "type": "file",
+            "content": "#!/bin/bash\n# Git sync script"
+           },
+           "backup.sh": {
+            "type": "file",
+            "content": "#!/bin/bash\n# Backup script"
+           }
+          }
+         },
+         "share": {
+          "type": "dir",
+          "children": {
+           "applications": {
+            "type": "dir",
+            "children": {
+             "kitty.desktop": {
+              "type": "file",
+              "content": "[Desktop Entry]\nName=Kitty\nExec=kitty"
+             }
+            }
+           },
+           "fonts": {
+            "type": "dir",
+            "children": {
+             "JetBrainsMono": { "type": "dir", "children": {} }
+            }
+           }
+          }
+         },
+         "state": {
+          "type": "dir",
+          "children": {
+           "nvim": {
+            "type": "dir",
+            "children": {
+             "swap": { "type": "dir", "children": {} },
+             "undo": { "type": "dir", "children": {} }
+            }
+           }
+          }
+         }
+        }
+       },
+
+       ".cache": {
+        "type": "dir",
+        "children": {
+         "npm": { "type": "dir", "children": {} },
+         "yarn": { "type": "dir", "children": {} },
+         "pnpm": { "type": "dir", "children": {} },
+         "cargo": { "type": "dir", "children": {} },
+         "pip": { "type": "dir", "children": {} },
+         "mozilla": { "type": "dir", "children": {} }
+        }
+       },
+
+       ".ssh": {
+        "type": "dir",
+        "children": {
+         "id_rsa": { "type": "file", "content": "[private key - encrypted]" },
+         "id_rsa.pub": {
+          "type": "file",
+          "content": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC... lolo@arch"
+         },
+         "id_ed25519": {
+          "type": "file",
+          "content": "[private key - encrypted]"
+         },
+         "id_ed25519.pub": {
+          "type": "file",
+          "content": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... lolo@arch"
+         },
+         "config": {
+          "type": "file",
+          "content": "Host github.com\n    HostName github.com\n    User git\n    IdentityFile ~/.ssh/id_ed25519\n \n Host gitlab.com\n    HostName gitlab.com\n    User git\n    IdentityFile ~/.ssh/id_ed25519\n \n Host *\n    AddKeysToAgent yes\n    IdentitiesOnly yes"
+         },
+         "known_hosts": {
+          "type": "file",
+          "content": "github.com ssh-rsa AAAAB3NzaC1yc2E...\ngitlab.com ssh-rsa AAAAB3NzaC1yc2E..."
+         }
+        }
+       },
+
+       ".gnupg": {
+        "type": "dir",
+        "children": {
+         "gpg.conf": {
+          "type": "file",
+          "content": "# GPG Configuration\n use-agent\n default-key 1A2B3C4D5E6F7G8H\n keyserver hkps://keys.openpgp.org"
+         },
+         "gpg-agent.conf": {
+          "type": "file",
+          "content": "default-cache-ttl 600\n max-cache-ttl 7200\n pinentry-program /usr/bin/pinentry-gtk-2"
+         }
+        }
+       },
+
+       "Documents": {
+        "type": "dir",
+        "children": {
+         "Notes": {
+          "type": "dir",
+          "children": {
+           "ideas.md": {
+            "type": "file",
+            "content": "# Project Ideas\n \n ## Web Development\n - [ ] Desktop environment simulator ✅ (in progress)\n - [ ] Discord bot dashboard\n - [ ] Portfolio redesign\n - [ ] Blog platform\n \n ## Learning\n - [ ] Rust async programming\n - [ ] WebGPU graphics\n - [ ] Svelte 5 runes mastery ✅\n - [ ] PostgreSQL optimization"
+           },
+           "todo.md": {
+            "type": "file",
+            "content": "# TODO\n \n ## Today\n - [x] Fix Ayako command handler\n - [ ] Update me-website README\n - [ ] Add window snapping feature\n - [ ] Review PRs\n \n ## This Week\n - [ ] Deploy Ayako v2.0\n - [ ] Add keyboard shortcuts to desktop\n - [ ] Set up CI/CD pipeline\n - [ ] Write documentation\n \n ## Someday\n - [ ] Learn WebAssembly\n - [ ] Build CLI tool in Rust\n - [ ] Contribute to Hyprland"
+           }
+          }
+         },
+         "Configs": {
+          "type": "dir",
+          "children": {
+           "arch-install-guide.md": {
+            "type": "file",
+            "content": "# Arch Linux Installation Guide\n\n## Pre-installation\n1. Verify boot mode: \"ls /sys/firmware/efi/efivars\"\n2. Connect to internet: \"iwctl\"\n3. Update system clock: \"timedatectl set-ntp true\"\n\n## Partition disks\n```bash\nfdisk /dev/nvme0n1\n# Create partitions:\n# /dev/nvme0n1p1 - 512M EFI\n# /dev/nvme0n1p2 - 100G root\n# /dev/nvme0n1p3 - rest home\n```\n\n## Format partitions\n```bash\nmkfs.fat -F32 /dev/nvme0n1p1\nmkfs.ext4 /dev/nvme0n1p2\nmkfs.ext4 /dev/nvme0n1p3\n```\n\n## Mount filesystems\n```bash\nmount /dev/nvme0n1p2 /mnt\nmount --mkdir /dev/nvme0n1p1 /mnt/boot\nmount --mkdir /dev/nvme0n1p3 /mnt/home\n```\n\n## Install base system\n```bash\npacstrap -K /mnt base linux linux-firmware\n```"
+           }
+          }
+         }
+        }
+       },
+
+       "Downloads": {
+        "type": "dir",
+        "children": {
+         "neko-wallpaper-pack.zip": {
+          "type": "file",
+          "content": "[binary: 125MB]"
+         },
+         "arch-install.iso": { "type": "file", "content": "[binary: 850MB]" },
+         "font-pack.tar.gz": { "type": "file", "content": "[binary: 45MB]" }
+        }
+       },
+
+       "Pictures": {
+        "type": "dir",
+        "children": {
+         "Wallpapers": {
+          "type": "dir",
+          "children": {
+           "neko-city.png": {
+            "type": "file",
+            "content": "[image: cyberpunk neko city]"
+           },
+           "neko-forest.png": {
+            "type": "file",
+            "content": "[image: neko in forest]"
+           },
+           "arch-logo.png": {
+            "type": "file",
+            "content": "[image: arch linux logo]"
+           },
+           "hyprland-rice.png": {
+            "type": "file",
+            "content": "[image: hyprland screenshot]"
+           }
+          }
+         },
+         "Screenshots": {
+          "type": "dir",
+          "children": {
+           "2024-10-30_12-34-56.png": {
+            "type": "file",
+            "content": "[screenshot]"
+           },
+           "2024-10-29_18-22-41.png": {
+            "type": "file",
+            "content": "[screenshot]"
+           }
+          }
+         }
+        }
+       },
+
+       "Music": {
+        "type": "dir",
+        "children": {
+         "Lo-fi": {
+          "type": "dir",
+          "children": {
+           "01-chill-beats.mp3": { "type": "file", "content": "[audio]" },
+           "02-rainy-day.mp3": { "type": "file", "content": "[audio]" }
+          }
+         },
+         "Playlists": {
+          "type": "dir",
+          "children": {
+           "coding-focus.m3u": {
+            "type": "file",
+            "content": "#EXTM3U\n#EXTINF:180,Chill Beats\n01-chill-beats.mp3"
+           }
+          }
+         }
+        }
+       },
+
+       "Videos": {
+        "type": "dir",
+        "children": {
+         "Recordings": {
+          "type": "dir",
+          "children": {
+           "hyprland-demo.mp4": {
+            "type": "file",
+            "content": "[video: 1080p 60fps]"
+           }
+          }
+         }
+        }
+       },
+
+       "Projects": {
+        "type": "dir",
+        "children": {
+         "dotfiles": {
+          "type": "dir",
+          "children": {
+           "hypr": {
+            "type": "dir",
+            "children": {
+             "hyprland.conf": {
+              "type": "file",
+              "content": "# Symlinked to ~/.config/hypr/"
+             }
+            }
+           },
+           "waybar": {
+            "type": "dir",
+            "children": {
+             "config": { "type": "file", "content": "# Waybar config" },
+             "style.css": { "type": "file", "content": "# Waybar styles" }
+            }
+           },
+           "install.sh": {
+            "type": "file",
+            "content": "#!/bin/bash\n # Dotfiles installation script\n echo \"Installing dotfiles...\"\n ln -sf ~/Projects/dotfiles/hypr ~/.config/hypr\n ln -sf ~/Projects/dotfiles/waybar ~/.config/waybar\n echo \"Done!\""
+           },
+           "README.md": {
+            "type": "file",
+            "content": "# Dotfiles\n \n My personal Arch Linux + Hyprland configuration files.\n \n ## Installation\n \\\"\\\"\\\"bash\n./install.sh\n \"\\\"\"\n \n ## Components\n - Hyprland\n - Waybar\n - Kitty\n - Rofi\n - Dunst"
+           }
+          }
+         },
+
+         "rust-cli": {
+          "type": "dir",
+          "children": {
+           "src": {
+            "type": "dir",
+            "children": {
+             "main.rs": {
+              "type": "file",
+              "content": "use std::env;\n \n fn main() {\n    let args: Vec<String> = env::args().collect();\n    println!(\"Rust CLI Tool v1.0\");\n    println!(\"Args: {:?}\", args);\n }"
+             }
+            }
+           },
+           "Cargo.toml": {
+            "type": "file",
+            "content": "[package]\n name = \"rust-cli\"\n version = \"0.1.0\"\n edition = \"2021\"\n \n [dependencies]\n clap = { version = \"4.4\", features = [\"derive\"] }\n tokio = { version = \"1.35\", features = [\"full\"] }"
+           },
+           "README.md": {
+            "type": "file",
+            "content": "# Rust CLI Tool\n\nA command-line utility written in Rust."
+           }
+          }
+         }
+        }
+       },
+
+       ".gitconfig": {
+        "type": "file",
+        "content": "[user]\n    name = Lolo\n    email = lolo@arch.local\n [core]\n    editor = nvim"
+       },
+       ".npmrc": {
+        "type": "file",
+        "content": "registry=https://registry.npmjs.org/\nsave-exact=true"
+       },
+       ".yarnrc": {
+        "type": "file",
+        "content": "save-prefix \"\""
+       },
+       ".cargo": {
+        "type": "dir",
+        "children": {
+         "config.toml": {
+          "type": "file",
+          "content": "[build]\n jobs = 8\n \n [net]\n git-fetch-with-cli = true"
+         }
+        }
+       },
+       ".rustup": {
+        "type": "dir",
+        "children": {
+         "settings.toml": {
+          "type": "file",
+          "content": "default_toolchain = \"stable\""
+         }
+        }
+       },
+
+       ".env": {
+        "type": "file",
+        "content": "# Environment variables\nNODE_ENV=development\nDATABASE_URL=postgresql://localhost:5432/dev"
+       },
+
+       ".tmux.conf": {
+        "type": "file",
+        "content": "# Tmux Configuration\n set -g default-terminal \"tmux-256color\"\n set -g mouse on\n set -g base-index 1\n setw -g pane-base-index 1\n \n # Prefix\n unbind C-b\n set -g prefix C-a\n bind C-a send-prefix\n \n # Splits\n bind | split-window -h\n bind - split-window -v\n \n # Navigation\n bind h select-pane -L\n bind j select-pane -D\n bind k select-pane -U\n bind l select-pane -R\n \n # Status bar\n set -g status-style bg=default,fg=white\n set -g status-left '#[fg=cyan][#S] '\n set -g status-right '#[fg=yellow]%H:%M '"
+       },
+
+       ".zsh_history": {
+        "type": "file",
+        "content": ": 1698765432:0;ls -la\n : 1698765450:0;npm run dev\n : 1698765500:0;git status\n : 1698765510:0;git add .\n : 1698765520:0;git commit -m \"Update command handler\"\n : 1698765530:0;git push\n : 1698765600:0;cd ../me-website\n : 1698765610:0;npm run dev\n : 1698765700:0;nvim src/lib/components/Desktop.svelte\n : 1698765800:0;hyprctl reload\n : 1698765900:0;neofetch"
+       },
+       ".bash_history": {
+        "type": "file",
+        "content": "ls -la\n cd Projects\n git clone github.com/user/repo\n npm install\n npm run dev\n sudo pacman -Syu\n yay -S hyprland\n cd ~\n neofetch"
+       }
+      }
+     }
+    }
+   },
+
+   "lib": {
+    "type": "dir",
+    "children": {
+     "libc.so.6": {
+      "type": "file",
+      "content": "[shared library: C standard library]"
+     },
+     "libm.so.6": {
+      "type": "file",
+      "content": "[shared library: math library]"
+     },
+     "libpthread.so.0": {
+      "type": "file",
+      "content": "[shared library: POSIX threads]"
+     },
+     "modules": {
+      "type": "dir",
+      "children": {
+       "6.6.10-arch1-1": {
+        "type": "dir",
+        "children": {
+         "kernel": { "type": "dir", "children": {} }
+        }
+       }
+      }
+     }
+    }
+   },
+
+   "mnt": {
+    "type": "dir",
+    "children": {
+     "usb": { "type": "dir", "children": {} },
+     "external": { "type": "dir", "children": {} }
+    }
+   },
+
+   "opt": {
+    "type": "dir",
+    "children": {
+     "discord": { "type": "dir", "children": {} },
+     "spotify": { "type": "dir", "children": {} },
+     "vscode": { "type": "dir", "children": {} }
+    }
+   },
+
+   "proc": {
+    "type": "dir",
+    "children": {
+     "cpuinfo": {
+      "type": "file",
+      "content": "processor    : 0\n vendor_id    : GenuineIntel\n cpu family   : 6\n model        : 142\n model name   : Intel(R) Core(TM) i7-8550U CPU @ 1.80GHz\n stepping     : 10\n cpu MHz      : 2400.000\n cache size   : 8192 KB"
+     },
+     "meminfo": {
+      "type": "file",
+      "content": "MemTotal:       16384000 kB\n MemFree:         8192000 kB\n MemAvailable:   12288000 kB\n Buffers:          512000 kB\n Cached:          2048000 kB"
+     },
+     "version": {
+      "type": "file",
+      "content": "Linux version 6.6.10-arch1-1 (linux@archlinux) (gcc 13.2.1)"
+     }
+    }
+   },
+
+   "root": {
+    "type": "dir",
+    "children": {
+     ".bashrc": {
+      "type": "file",
+      "content": "# Root bashrc\nPS1=\"[\\u@\\h \\W]\\# \""
+     },
+     ".bash_profile": {
+      "type": "file",
+      "content": "[[ -f ~/.bashrc ]] && . ~/.bashrc"
+     }
+    }
+   },
+
+   "run": {
+    "type": "dir",
+    "children": {
+     "systemd": { "type": "dir", "children": {} },
+     "user": {
+      "type": "dir",
+      "children": {
+       "1000": {
+        "type": "dir",
+        "children": {
+         "pulse": { "type": "dir", "children": {} },
+         "systemd": { "type": "dir", "children": {} }
+        }
+       }
+      }
+     }
+    }
+   },
+
+   "sbin": {
+    "type": "dir",
+    "children": {
+     "init": { "type": "file", "content": "[binary: init system]" },
+     "reboot": { "type": "file", "content": "[binary: reboot system]" },
+     "shutdown": { "type": "file", "content": "[binary: shutdown system]" },
+     "fsck": { "type": "file", "content": "[binary: filesystem check]" }
+    }
+   },
+
+   "srv": {
+    "type": "dir",
+    "children": {
+     "http": { "type": "dir", "children": {} },
+     "ftp": { "type": "dir", "children": {} }
+    }
+   },
+
+   "sys": {
+    "type": "dir",
+    "children": {
+     "class": { "type": "dir", "children": {} },
+     "devices": { "type": "dir", "children": {} },
+     "firmware": {
+      "type": "dir",
+      "children": {
+       "efi": { "type": "dir", "children": {} }
+      }
+     }
+    }
+   },
+
+   "tmp": {
+    "type": "dir",
+    "children": {
+     "systemd-private": { "type": "dir", "children": {} },
+     "tmp.txt": { "type": "file", "content": "Temporary data" }
+    }
+   },
+
+   "usr": {
+    "type": "dir",
+    "children": {
+     "bin": {
+      "type": "dir",
+      "children": {
+       "node": { "type": "file", "content": "[binary: Node.js runtime]" },
+       "npm": { "type": "file", "content": "[binary: Node package manager]" },
+       "nvim": { "type": "file", "content": "[binary: Neovim editor]" },
+       "code": { "type": "file", "content": "[binary: VSCode]" },
+       "firefox": { "type": "file", "content": "[binary: Firefox browser]" },
+       "kitty": { "type": "file", "content": "[binary: Kitty terminal]" },
+       "git": { "type": "file", "content": "[binary: Git VCS]" },
+       "cargo": { "type": "file", "content": "[binary: Rust package manager]" },
+       "rustc": { "type": "file", "content": "[binary: Rust compiler]" },
+       "python": { "type": "file", "content": "[binary: Python interpreter]" },
+       "pip": {
+        "type": "file",
+        "content": "[binary: Python package installer]"
+       },
+       "docker": {
+        "type": "file",
+        "content": "[binary: Docker container runtime]"
+       },
+       "docker-compose": {
+        "type": "file",
+        "content": "[binary: Docker Compose]"
+       },
+       "wget": { "type": "file", "content": "[binary: Web downloader]" },
+       "curl": { "type": "file", "content": "[binary: Transfer tool]" },
+       "htop": { "type": "file", "content": "[binary: Process viewer]" },
+       "btop": { "type": "file", "content": "[binary: Resource monitor]" },
+       "neofetch": { "type": "file", "content": "[binary: System info]" },
+       "tmux": { "type": "file", "content": "[binary: Terminal multiplexer]" },
+       "hyprctl": { "type": "file", "content": "[binary: Hyprland control]" }
+      }
+     },
+     "lib": {
+      "type": "dir",
+      "children": {
+       "systemd": { "type": "dir", "children": {} },
+       "modules": { "type": "dir", "children": {} }
+      }
+     },
+     "share": {
+      "type": "dir",
+      "children": {
+       "applications": {
+        "type": "dir",
+        "children": {
+         "firefox.desktop": {
+          "type": "file",
+          "content": "[Desktop Entry]\nName=Firefox"
+         },
+         "kitty.desktop": {
+          "type": "file",
+          "content": "[Desktop Entry]\nName=Kitty"
+         },
+         "code.desktop": {
+          "type": "file",
+          "content": "[Desktop Entry]\nName=VSCode"
+         }
+        }
+       },
+       "fonts": {
+        "type": "dir",
+        "children": {
+         "TTF": {
+          "type": "dir",
+          "children": {
+           "JetBrainsMono-Regular.ttf": {
+            "type": "file",
+            "content": "[font file]"
+           },
+           "JetBrainsMono-Bold.ttf": {
+            "type": "file",
+            "content": "[font file]"
+           }
+          }
+         }
+        }
+       },
+       "pixmaps": { "type": "dir", "children": {} },
+       "doc": { "type": "dir", "children": {} },
+       "man": {
+        "type": "dir",
+        "children": {
+         "man1": {
+          "type": "dir",
+          "children": {
+           "ls.1.gz": { "type": "file", "content": "[man page: ls command]" },
+           "git.1.gz": { "type": "file", "content": "[man page: git]" }
+          }
+         }
+        }
+       }
+      }
+     },
+     "include": { "type": "dir", "children": {} },
+     "local": {
+      "type": "dir",
+      "children": {
+       "bin": { "type": "dir", "children": {} },
+       "share": { "type": "dir", "children": {} }
+      }
+     }
+    }
+   },
+
+   "var": {
+    "type": "dir",
+    "children": {
+     "log": {
+      "type": "dir",
+      "children": {
+       "pacman.log": {
+        "type": "file",
+        "content": "[2024-10-30T10:00] [PACMAN] Running 'pacman -Syu'\n [2024-10-30T10:01] [PACMAN] synchronizing package lists\n [2024-10-30T10:02] [ALPM] upgraded linux (6.6.9-1 -> 6.6.10-1)\n [2024-10-30T10:03] [ALPM] upgraded hyprland (0.35.0-1 -> 0.36.0-1)\n [2024-10-30T10:04] [PACMAN] Running 'pacman -S neovim'\n [2024-10-30T10:05] [ALPM] installed neovim (0.9.5-1)"
+       },
+       "Xorg.0.log": { "type": "file", "content": "[X server log]" },
+       "kern.log": {
+        "type": "file",
+        "content": "Oct 30 10:00:00 arch kernel: Linux version 6.6.10-arch1-1\n Oct 30 10:00:01 arch kernel: Command line: BOOT_IMAGE=/vmlinuz-linux\n Oct 30 10:00:02 arch kernel: x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'\n Oct 30 10:00:03 arch kernel: ACPI: Core revision 20230628"
+       },
+       "systemd": {
+        "type": "dir",
+        "children": {
+         "system.log": { "type": "file", "content": "[systemd logs]" }
+        }
+       }
+      }
+     },
+     "cache": {
+      "type": "dir",
+      "children": {
+       "pacman": {
+        "type": "dir",
+        "children": {
+         "pkg": {
+          "type": "dir",
+          "children": {
+           "linux-6.6.10-1-x86_64.pkg.tar.zst": {
+            "type": "file",
+            "content": "[package]"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "tmp": { "type": "dir", "children": {} },
+     "lib": {
+      "type": "dir",
+      "children": {
+       "systemd": { "type": "dir", "children": {} },
+       "pacman": { "type": "dir", "children": {} }
+      }
+     },
+     "spool": { "type": "dir", "children": {} }
+    }
+   }
+  }
+ }
+}
