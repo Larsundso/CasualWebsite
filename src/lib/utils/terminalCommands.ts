@@ -203,13 +203,13 @@ export function neofetch(): string {
  return `       /\\        lolo@arch
       /  \\       ---------
      /\\   \\      OS: Arch Linux x86_64
-    /  \\   \\     Host: Hyprland
+    /  \\   \\     Host: Windowland
    /    \\   \\    Kernel: 6.6.10-arch1-1
   /  /\\  \\   \\   Uptime: ${systemState.uptime}
  /  /  \\  \\  /\\  Packages: 1337 (pacman)
 /__/    \\__\\/  \\ Shell: zsh 5.9
                  Resolution: ${hw.resolution}
-                 WM: Hyprland
+                 WM: Windowland
                  Theme: Catppuccin-Mocha
                  Terminal: kitty
                  CPU: ${hw.cpu} (${hw.cores}C)

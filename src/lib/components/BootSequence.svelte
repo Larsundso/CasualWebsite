@@ -81,8 +81,8 @@
    "",
    "▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰░░░░ 75% LOADING GRAPHICS",
    "",
-   "[  1.123456] HYPRLAND: Compositor initialization started",
-   `[  1.134567] HYPRLAND: Detected ${hardware.cores} CPU cores for rendering`,
+   "[  1.123456] WINDOWLAND: Compositor initialization started",
+   `[  1.134567] WINDOWLAND: Detected ${hardware.cores} CPU cores for rendering`,
    "[  1.145678] WAYLAND: Display server protocol v1.22 loaded",
    `[  1.178901] DRM: Detected GPU - ${hardware.gpu}`,
    "[  1.201234] MESA: OpenGL 4.6 (Core Profile) loaded",
@@ -91,9 +91,9 @@
    "",
    "▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰░░ 85% LOADING DESKTOP ENVIRONMENT",
    "",
-   "[  1.501234] HYPRLAND: Configuration file loaded",
-   "[  1.512345] HYPRLAND: Workspace manager initialized | Workspaces: 1-10",
-   `[  1.534567] HYPRLAND: Animations engine started | Display: ${hardware.resolution}`,
+   "[  1.501234] WINDOWLAND: Configuration file loaded",
+   "[  1.512345] WINDOWLAND: Workspace manager initialized | Workspaces: 1-10",
+   `[  1.534567] WINDOWLAND: Animations engine started | Display: ${hardware.resolution}`,
    "[  1.601234] AUDIO: PipeWire v1.0.0 multimedia server started",
    "[  1.634567] NETWORK: NetworkManager v1.44.2 daemon started",
    "",
@@ -257,7 +257,7 @@
      </div>
      <div class="boot-title-cyber">
       <div class="title-main">ARCH//LINUX</div>
-      <div class="title-sub">HYPRLAND COMPOSITOR</div>
+      <div class="title-sub">WINDOWLAND COMPOSITOR</div>
      </div>
      <div class="boot-status">
       <div class="status-text">
