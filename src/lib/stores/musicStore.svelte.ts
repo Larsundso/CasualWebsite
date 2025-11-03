@@ -181,6 +181,154 @@ const soundColors = [
 ];
 
 let sounds = $state<Sound[]>(loadPersistedSoundsState());
+let hasRestoredPlayback = false;
+let pendingRestoration: number[] = [];
+let restorationTimer: number | null = null;
+let hasUserInteracted = false;
+
+/**
+ * Restore playback for sounds that were playing
+ * Should be called after user interaction to comply with autoplay policies
+ */
+export function restoreSoundPlayback() {
+ if (hasRestoredPlayback) return;
+ hasRestoredPlayback = true;
+
+ sounds.forEach((sound, index) => {
+  if (sound.playing) {
+   // Reset playing state to false first, so toggleSound will turn it on
+   sound.playing = false;
+   // Try to start playback
+   attemptSoundPlayback(index);
+  }
+ });
+}
+
+/**
+ * Attempt to play a sound, handling autoplay restrictions
+ */
+function attemptSoundPlayback(index: number) {
+ const sound = sounds[index];
+ if (!sound) return;
+
+ initMasterAudioContext();
+
+ if (!sound.audioElement) {
+  const audioPath = soundFilePaths[sound.id];
+  if (audioPath) {
+   sound.audioElement = new Audio(audioPath);
+   sound.audioElement.loop = true;
+   sound.audioElement.volume = sound.volume;
+   sound.audioElement.crossOrigin = "anonymous";
+
+   if (masterAudioContext && masterGain) {
+    sound.audioContext = masterAudioContext;
+    sound.source = masterAudioContext.createMediaElementSource(
+     sound.audioElement
+    );
+    sound.analyser = masterAudioContext.createAnalyser();
+    sound.analyser.fftSize = 256;
+
+    const gain = masterAudioContext.createGain();
+    sound.source.connect(sound.analyser);
+    sound.analyser.connect(gain);
+    gain.connect(masterGain);
+   }
+  }
+ }
+
+ if (sound.audioElement) {
+  sound.audioElement
+   .play()
+   .then(() => {
+    sound.playing = true;
+    sounds = [...sounds];
+    pendingRestoration = pendingRestoration.filter((i) => i !== index);
+   })
+   .catch((err) => {
+    console.warn(
+     `Autoplay blocked for sound ${sound.name}, will retry after user interaction:`,
+     err
+    );
+    if (!pendingRestoration.includes(index)) pendingRestoration.push(index);
+
+    setupInteractionListeners();
+   });
+ }
+}
+
+/**
+ * Set up listeners for first user interaction
+ */
+function setupInteractionListeners() {
+ if (typeof window === "undefined" || hasUserInteracted) return;
+
+ const events = ["click", "keydown", "touchstart", "mousedown"];
+
+ const handleInteraction = () => {
+  hasUserInteracted = true;
+  retryPendingSounds();
+
+  events.forEach((event) => {
+   window.removeEventListener(event, handleInteraction);
+  });
+
+  if (restorationTimer !== null) {
+   clearTimeout(restorationTimer);
+   restorationTimer = null;
+  }
+ };
+
+ events.forEach((event) => {
+  window.addEventListener(event, handleInteraction, { once: true });
+ });
+
+ if (restorationTimer === null) {
+  restorationTimer = window.setTimeout(() => {
+   if (!hasUserInteracted) {
+    console.log(
+     "5 seconds passed, attempting to restore sounds without interaction"
+    );
+    hasUserInteracted = true;
+    retryPendingSounds();
+   }
+  }, 5000);
+ }
+}
+
+/**
+ * Retry playing sounds that failed due to autoplay restrictions
+ */
+function retryPendingSounds() {
+ if (pendingRestoration.length === 0) return;
+
+ console.log(`Retrying ${pendingRestoration.length} pending sound(s)`);
+
+ const toRetry = [...pendingRestoration];
+ pendingRestoration = [];
+
+ toRetry.forEach((index) => {
+  const sound = sounds[index];
+  if (sound && sound.audioElement) {
+   sound.audioElement
+    .play()
+    .then(() => {
+     sound.playing = true;
+     sounds = [...sounds];
+     saveSoundsState();
+    })
+    .catch((err) => {
+     console.error(
+      `Failed to play sound ${sound.name} even after interaction:`,
+      err
+     );
+     sound.playing = false;
+     sounds = [...sounds];
+     saveSoundsState();
+    });
+  }
+ });
+}
 
 /**
  * Get color for a sound by index
@@ -459,17 +607,25 @@ export function toggleSound(index: number) {
 
  if (sound.audioElement) {
   if (sound.playing) {
-   sound.audioElement.play().catch((err) => {
-    console.error("Error playing sound:", err);
-    sound.playing = false;
-    saveSoundsState();
-   });
+   sound.audioElement
+    .play()
+    .then(() => {
+     saveSoundsState();
+     pendingRestoration = pendingRestoration.filter((i) => i !== index);
+    })
+    .catch((err) => {
+     console.warn(
+      `Autoplay blocked for sound ${sound.name}, will retry after user interaction:`,
+      err
+     );
+     if (!pendingRestoration.includes(index)) pendingRestoration.push(index);
+     setupInteractionListeners();
+    });
   } else {
    sound.audioElement.pause();
+   saveSoundsState();
   }
- }
-
- saveSoundsState();
+ } else saveSoundsState();
 }
 
 /**

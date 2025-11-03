@@ -1,4 +1,5 @@
 <script lang="ts">
+ import { onMount } from "svelte";
  import IconCloudRain from "@tabler/icons-svelte/icons/cloud-rain";
  import IconAirConditioning from "@tabler/icons-svelte/icons/air-conditioning";
  import IconCoffee from "@tabler/icons-svelte/icons/coffee";
@@ -36,6 +37,7 @@
   applyPreset,
   stopAllSounds,
   getSoundColor,
+  restoreSoundPlayback,
  } from "$lib/stores/musicStore.svelte";
  import AudioVisualizer from "$lib/components/AudioVisualizer.svelte";
 
@@ -82,6 +84,14 @@
    name: item.sound.name,
   }))
  );
+
+ onMount(() => {
+  const timer = setTimeout(() => {
+   restoreSoundPlayback();
+  }, 500);
+
+  return () => clearTimeout(timer);
+ });
 </script>
 
 <div class="music-player">
