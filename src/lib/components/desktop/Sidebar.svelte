@@ -17,10 +17,14 @@
  import IconApps from "@tabler/icons-svelte/icons/apps";
  import IconTerminal from "@tabler/icons-svelte/icons/terminal";
  import IconSettings from "@tabler/icons-svelte/icons/settings";
+ import IconClock from "@tabler/icons-svelte/icons/clock";
+ import IconCheckbox from "@tabler/icons-svelte/icons/checkbox";
  import type { ComponentType } from "svelte";
 
  const iconMap: Record<string, ComponentType> = {
   user: IconUser,
+  clock: IconClock,
+  checkbox: IconCheckbox,
   gamepad: IconDeviceGamepad2,
   music: IconMusic,
   message: IconMessage,

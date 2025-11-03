@@ -11,3 +11,19 @@ body {
 * {
  box-sizing: border-box;
 }
+
+/* Focus Mode Styling */
+body.focus-mode .wallpaper-video,
+body.focus-mode .wallpaper-image {
+ filter: brightness(0.3) blur(8px) !important;
+ transition: filter 0.5s ease;
+}
+
+body.focus-mode::after {
+ content: '';
+ position: fixed;
+ inset: 0;
+ background: rgba(0, 0, 0, 0.3);
+ pointer-events: none;
+ z-index: 1;
+}

@@ -1,10 +1,20 @@
 <script lang="ts">
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import IconKeyboard from "@tabler/icons-svelte/icons/keyboard";
+ import IconRefresh from "@tabler/icons-svelte/icons/refresh";
+ import { restoreDefaultCategories, restoreDefaultPriorities } from '$lib/stores/todoStore.svelte';
 
  let theme = $state("dark");
  let animations = $state(true);
  let soundEffects = $state(true);
+
+ function handleRestorePresets() {
+  if (confirm('Restore default categories and priorities? This will not delete your custom ones.')) {
+   restoreDefaultCategories();
+   restoreDefaultPriorities();
+   alert('Default presets restored successfully!');
+  }
+ }
 
  const shortcuts = [
   { keys: "Click Sidebar Apps", description: "Open application windows" },
@@ -60,6 +70,27 @@
     bind:checked={soundEffects}
     class="setting-checkbox"
    />
+  </div>
+ </div>
+
+ <div class="settings-section">
+  <h3>
+   <IconRefresh
+    size={20}
+    stroke={1.5}
+    style="display: inline-block; vertical-align: middle; margin-right: 8px;"
+   />
+   Todo Presets
+  </h3>
+  <div class="setting-item">
+   <div style="flex: 1;">
+    <div style="font-weight: 600; margin-bottom: 4px;">Restore Default Categories & Priorities</div>
+    <div style="font-size: 12px; opacity: 0.7;">Restores Work, Personal, Learning, Projects categories and High, Medium, Low priorities</div>
+   </div>
+   <button class="restore-btn" onclick={handleRestorePresets}>
+    <IconRefresh size={16} stroke={1.5} />
+    Restore
+   </button>
   </div>
  </div>
 
@@ -160,6 +191,31 @@
   width: 40px;
   height: 20px;
   cursor: pointer;
+ }
+
+ .restore-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #a6e3a1, #94e2d5);
+  border: none;
+  border-radius: 8px;
+  color: #1e1e2e;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(166, 227, 161, 0.3);
+ }
+
+ .restore-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(166, 227, 161, 0.5);
+ }
+
+ .restore-btn:active {
+  transform: translateY(0);
  }
 
  .settings-info {

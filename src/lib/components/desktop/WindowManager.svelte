@@ -21,6 +21,8 @@
  import ServersWindow from "$lib/components/windows/ServersWindow.svelte";
  import AppsWindow from "$lib/components/windows/AppsWindow.svelte";
  import SettingsWindow from "$lib/components/windows/SettingsWindow.svelte";
+ import FocusWindow from "$lib/components/windows/FocusWindow.svelte";
+ import TodoWindow from "$lib/components/windows/TodoWindow.svelte";
 
  import IconUser from "@tabler/icons-svelte/icons/user";
  import IconDeviceGamepad2 from "@tabler/icons-svelte/icons/device-gamepad-2";
@@ -29,6 +31,8 @@
  import IconApps from "@tabler/icons-svelte/icons/apps";
  import IconTerminal from "@tabler/icons-svelte/icons/terminal";
  import IconSettings from "@tabler/icons-svelte/icons/settings";
+ import IconClock from "@tabler/icons-svelte/icons/clock";
+ import IconCheckbox from "@tabler/icons-svelte/icons/checkbox";
  import type { ComponentType } from "svelte";
 
  const visibleWindows = $derived(windowState.visibleWindows);
@@ -39,6 +43,8 @@
   terminal: Terminal,
   music: MusicPlayer,
   profile: ProfileWindow,
+  focus: FocusWindow,
+  todos: TodoWindow,
   games: GamesWindow,
   servers: ServersWindow,
   apps: AppsWindow,
@@ -47,6 +53,8 @@
 
  const iconMap: Record<string, ComponentType> = {
   user: IconUser,
+  clock: IconClock,
+  checkbox: IconCheckbox,
   gamepad: IconDeviceGamepad2,
   music: IconMusic,
   message: IconMessage,
