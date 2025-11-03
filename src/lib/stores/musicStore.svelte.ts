@@ -22,18 +22,138 @@ export interface SoundPreset {
  soundSettings: { id: number; volume: number }[];
 }
 
+// localStorage keys
+const SOUNDS_STATE_KEY = 'music-sounds-state';
+const YOUTUBE_STATE_KEY = 'music-youtube-state';
+
+// Helper function to get default sounds
+function getDefaultSounds(): Sound[] {
+	return [
+		{ id: 1, name: "Rain", icon: "cloud-rain", playing: false, volume: 0.5 },
+		{ id: 2, name: "AC Noise", icon: "air-conditioning", playing: false, volume: 0.5 },
+		{ id: 3, name: "Cafe", icon: "coffee", playing: false, volume: 0.5 },
+		{ id: 4, name: "City Traffic", icon: "car", playing: false, volume: 0.5 },
+		{ id: 5, name: "White Noise", icon: "radio", playing: false, volume: 0.5 },
+		{ id: 6, name: "Brown Noise", icon: "volume", playing: false, volume: 0.5 },
+		{ id: 7, name: "Waterfall", icon: "droplet", playing: false, volume: 0.5 },
+		{ id: 8, name: "Thunderstorm", icon: "cloud-storm", playing: false, volume: 0.5 },
+		{ id: 9, name: "Hail", icon: "hexagon-3d", playing: false, volume: 0.5 },
+		{ id: 10, name: "Fireplace", icon: "flame", playing: false, volume: 0.5 },
+		{ id: 11, name: "Forest", icon: "tree", playing: false, volume: 0.5 },
+		{ id: 12, name: "Birds", icon: "feather", playing: false, volume: 0.5 },
+		{ id: 13, name: "Beach Waves", icon: "beach", playing: false, volume: 0.5 },
+	];
+}
+
+// Load persisted sounds state from localStorage
+function loadPersistedSoundsState(): Sound[] {
+	if (typeof localStorage === 'undefined') {
+		return getDefaultSounds();
+	}
+
+	try {
+		const saved = localStorage.getItem(SOUNDS_STATE_KEY);
+		if (saved) {
+			const parsed = JSON.parse(saved);
+			// Merge with defaults to ensure all sounds exist with correct metadata
+			const defaults = getDefaultSounds();
+			return defaults.map(sound => {
+				const savedSound = parsed.find((s: Sound) => s.id === sound.id);
+				if (savedSound) {
+					return {
+						...sound,
+						playing: savedSound.playing || false,
+						volume: savedSound.volume ?? sound.volume,
+					};
+				}
+				return sound;
+			});
+		}
+	} catch (error) {
+		console.error('Failed to load sounds state:', error);
+	}
+
+	return getDefaultSounds();
+}
+
+// Load persisted YouTube state from localStorage
+function loadPersistedYoutubeState(): { url: string; volume: number; playing: boolean } {
+	if (typeof localStorage === 'undefined') {
+		return {
+			url: "https://www.youtube.com/playlist?list=PLd-7ZLEr1elbCr1vWU-4pittlYonya_-O",
+			volume: 0.5,
+			playing: false,
+		};
+	}
+
+	try {
+		const saved = localStorage.getItem(YOUTUBE_STATE_KEY);
+		if (saved) {
+			return JSON.parse(saved);
+		}
+	} catch (error) {
+		console.error('Failed to load YouTube state:', error);
+	}
+
+	return {
+		url: "https://www.youtube.com/playlist?list=PLd-7ZLEr1elbCr1vWU-4pittlYonya_-O",
+		volume: 0.5,
+		playing: false,
+	};
+}
+
+// Save sounds state to localStorage
+function saveSoundsState() {
+	if (typeof localStorage === 'undefined') return;
+
+	try {
+		const stateToSave = sounds.map(s => ({
+			id: s.id,
+			name: s.name,
+			icon: s.icon,
+			playing: s.playing,
+			volume: s.volume,
+		}));
+		localStorage.setItem(SOUNDS_STATE_KEY, JSON.stringify(stateToSave));
+	} catch (error) {
+		console.error('Failed to save sounds state:', error);
+	}
+}
+
+// Save YouTube state to localStorage
+function saveYoutubeState() {
+	if (typeof localStorage === 'undefined') return;
+
+	try {
+		const playing = youtubePlayer && isYoutubePlayerReady
+			? youtubePlayer.getPlayerState() === 1
+			: shouldRestoreYoutubePlaying;
+
+		const stateToSave = {
+			url: youtubeUrl,
+			volume: youtubeVolume,
+			playing,
+		};
+		localStorage.setItem(YOUTUBE_STATE_KEY, JSON.stringify(stateToSave));
+	} catch (error) {
+		console.error('Failed to save YouTube state:', error);
+	}
+}
+
 let masterAudioContext: AudioContext | null = null;
 let masterAnalyser = $state<AnalyserNode | null>(null);
 let masterGain: GainNode | null = null;
 
-let youtubeUrl = $state(
- "https://www.youtube.com/playlist?list=PLd-7ZLEr1elbCr1vWU-4pittlYonya_-O"
-);
+// Initialize state from localStorage
+const persistedYoutubeState = loadPersistedYoutubeState();
+
+let youtubeUrl = $state(persistedYoutubeState.url);
 let youtubePlayer: any = $state(null);
 let youtubePlayerId = "persistent-youtube-player";
 let isYoutubePlayerReady = $state(false);
-let youtubeVolume = $state(0.5);
+let youtubeVolume = $state(persistedYoutubeState.volume);
 let hasSkippedFirstVideo = false;
+let shouldRestoreYoutubePlaying = persistedYoutubeState.playing;
 
 const soundColors = [
  "#89b4fa", // Rain - Blue
@@ -51,33 +171,7 @@ const soundColors = [
  "#89dceb", // Beach Waves - Cyan
 ];
 
-let sounds = $state<Sound[]>([
- { id: 1, name: "Rain", icon: "cloud-rain", playing: false, volume: 0.5 },
- {
-  id: 2,
-  name: "AC Noise",
-  icon: "air-conditioning",
-  playing: false,
-  volume: 0.5,
- },
- { id: 3, name: "Cafe", icon: "coffee", playing: false, volume: 0.5 },
- { id: 4, name: "City Traffic", icon: "car", playing: false, volume: 0.5 },
- { id: 5, name: "White Noise", icon: "radio", playing: false, volume: 0.5 },
- { id: 6, name: "Brown Noise", icon: "volume", playing: false, volume: 0.5 },
- { id: 7, name: "Waterfall", icon: "droplet", playing: false, volume: 0.5 },
- {
-  id: 8,
-  name: "Thunderstorm",
-  icon: "cloud-storm",
-  playing: false,
-  volume: 0.5,
- },
- { id: 9, name: "Hail", icon: "hexagon-3d", playing: false, volume: 0.5 },
- { id: 10, name: "Fireplace", icon: "flame", playing: false, volume: 0.5 },
- { id: 11, name: "Forest", icon: "tree", playing: false, volume: 0.5 },
- { id: 12, name: "Birds", icon: "feather", playing: false, volume: 0.5 },
- { id: 13, name: "Beach Waves", icon: "beach", playing: false, volume: 0.5 },
-]);
+let sounds = $state<Sound[]>(loadPersistedSoundsState());
 
 /**
  * Get color for a sound by index
@@ -242,9 +336,20 @@ function onPlayerReady(event: any) {
   youtubePlayer.setVolume(youtubeVolume * 100);
  }
 
+ // Restore playing state from localStorage
  setTimeout(() => {
-  if (youtubePlayer && youtubePlayer.setShuffle) {
-   youtubePlayer.setShuffle(true);
+  if (youtubePlayer) {
+   if (youtubePlayer.setShuffle) {
+    youtubePlayer.setShuffle(true);
+   }
+
+   // Restore playing state if it was playing before
+   if (shouldRestoreYoutubePlaying) {
+    youtubePlayer.playVideo();
+    shouldRestoreYoutubePlaying = false; // Reset flag
+   } else {
+    youtubePlayer.pauseVideo();
+   }
   }
  }, 1000);
 }
@@ -262,6 +367,9 @@ export function toggleYoutube() {
  } else {
   youtubePlayer.playVideo();
  }
+
+ // Save state after toggle
+ setTimeout(() => saveYoutubeState(), 100);
 }
 
 /**
@@ -288,6 +396,7 @@ export function setYoutubeVolume(volume: number) {
  if (youtubePlayer && youtubePlayer.setVolume) {
   youtubePlayer.setVolume(volume * 100);
  }
+ saveYoutubeState();
 }
 
 /**
@@ -303,6 +412,7 @@ export function isYoutubePlaying(): boolean {
  */
 export function setYoutubeUrl(url: string) {
  youtubeUrl = url;
+ saveYoutubeState();
  initYouTubePlayer();
 }
 
@@ -346,11 +456,14 @@ export function toggleSound(index: number) {
    sound.audioElement.play().catch((err) => {
     console.error("Error playing sound:", err);
     sound.playing = false;
+    saveSoundsState();
    });
   } else {
    sound.audioElement.pause();
   }
  }
+
+ saveSoundsState();
 }
 
 /**
@@ -365,6 +478,8 @@ export function setSoundVolume(index: number, volume: number) {
  if (sound.audioElement) {
   sound.audioElement.volume = volume;
  }
+
+ saveSoundsState();
 }
 
 /**
@@ -389,6 +504,9 @@ export function applyPreset(preset: SoundPreset) {
    }, 100 * setting.id);
   }
  });
+
+ // Save state after all preset changes (with delay to ensure all sounds are toggled)
+ setTimeout(() => saveSoundsState(), 100 * preset.soundSettings.length + 200);
 }
 
 /**
