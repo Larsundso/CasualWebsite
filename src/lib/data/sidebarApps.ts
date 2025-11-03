@@ -7,6 +7,7 @@ export const sidebarApps = [
 	{ id: 'games', icon: 'gamepad', label: 'Games', color: '#f38ba8' },
 	{ id: 'music', icon: 'music', label: 'Music', color: '#f5c2e7' },
 	{ id: 'servers', icon: 'message', label: 'Servers', color: '#89b4fa' },
+	{ id: 'apps', icon: 'apps', label: 'Apps', color: '#94e2d5' },
 	{ id: 'terminal', icon: 'terminal', label: 'Terminal', color: '#a6e3a1' },
 	{ id: 'settings', icon: 'settings', label: 'Settings', color: '#fab387' }
 ];

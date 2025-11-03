@@ -14,6 +14,7 @@
  import IconDeviceGamepad2 from "@tabler/icons-svelte/icons/device-gamepad-2";
  import IconMusic from "@tabler/icons-svelte/icons/music";
  import IconMessage from "@tabler/icons-svelte/icons/message";
+ import IconApps from "@tabler/icons-svelte/icons/apps";
  import IconTerminal from "@tabler/icons-svelte/icons/terminal";
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import type { ComponentType } from "svelte";
@@ -23,6 +24,7 @@
   gamepad: IconDeviceGamepad2,
   music: IconMusic,
   message: IconMessage,
+  apps: IconApps,
   terminal: IconTerminal,
   settings: IconSettings,
  };

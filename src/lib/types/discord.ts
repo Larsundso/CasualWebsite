@@ -171,3 +171,22 @@ export const WebsiteCategories = {
  17: "GOG",
  18: "Discord",
 };
+
+export interface Application {
+ id: string;
+ name: string;
+ icon: string; // https://cdn.discordapp.com/app-icons/<id>/<icon>.png?size=4096 // doesnt support .gif
+ description: string;
+ summary: string;
+ is_verified: boolean;
+ is_discoverable: boolean; // https://discord.com/discovery/applications/<id>
+ bot_public: boolean;
+ bot: {
+  id: string;
+  username: string;
+  avatar: string | null; // https://cdn.discordapp.com/avatars/<id>/<avatar>.<avatar starts with a_ ? .gif : .webp>?size=4096
+  discriminator: string; // #1234
+ };
+ approximate_guild_count: 4;
+ approximate_user_install_count: 0;
+}

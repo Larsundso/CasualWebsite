@@ -2,6 +2,7 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { TOKEN } from "$env/static/private";
 import type {
+ Application,
  Connection,
  Guild,
  SupplementalGame,
@@ -13,6 +14,7 @@ export type GETUser = {
  connections: Connection[];
  games: { supplemental_game_data: SupplementalGame[] };
  guilds: Guild[];
+ apps: Application[];
 };
 
 let cached: GETUser | null = null;
@@ -77,7 +79,19 @@ export const GET: RequestHandler = async (req) => {
     .sort((a, b) => a.name.localeCompare(b.name))
   );
 
- cached = { user, connections, games: supplementalGames, guilds };
+ const apps = await req
+  .fetch(
+   "https://discord.com/api/v9/applications?with_team_applications=true",
+   { headers: { authorization: TOKEN } }
+  )
+  .then((r) => r.json() as Promise<Application[]>)
+  .then((apps) =>
+   apps
+    .filter((a) => a.bot_public)
+    .sort((a, b) => b.approximate_guild_count - a.approximate_guild_count)
+  );
+
+ cached = { user, connections, games: supplementalGames, guilds, apps };
 
  return json(cached);
 };

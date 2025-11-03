@@ -19,12 +19,14 @@
  import ProfileWindow from "$lib/components/windows/ProfileWindow.svelte";
  import GamesWindow from "$lib/components/windows/GamesWindow.svelte";
  import ServersWindow from "$lib/components/windows/ServersWindow.svelte";
+ import AppsWindow from "$lib/components/windows/AppsWindow.svelte";
  import SettingsWindow from "$lib/components/windows/SettingsWindow.svelte";
 
  import IconUser from "@tabler/icons-svelte/icons/user";
  import IconDeviceGamepad2 from "@tabler/icons-svelte/icons/device-gamepad-2";
  import IconMusic from "@tabler/icons-svelte/icons/music";
  import IconMessage from "@tabler/icons-svelte/icons/message";
+ import IconApps from "@tabler/icons-svelte/icons/apps";
  import IconTerminal from "@tabler/icons-svelte/icons/terminal";
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import type { ComponentType } from "svelte";
@@ -37,6 +39,7 @@
   profile: ProfileWindow,
   games: GamesWindow,
   servers: ServersWindow,
+  apps: AppsWindow,
   settings: SettingsWindow,
  };
 
@@ -45,6 +48,7 @@
   gamepad: IconDeviceGamepad2,
   music: IconMusic,
   message: IconMessage,
+  apps: IconApps,
   terminal: IconTerminal,
   settings: IconSettings,
  };
