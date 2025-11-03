@@ -11,6 +11,7 @@ let currentWorkspace = $state(1);
 
 let draggingWindow: Window | null = null;
 let dragOffset = { x: 0, y: 0 };
+let rafId: number | null = null;
 
 let resizingWindow: Window | null = null;
 let resizeHandle = "";
@@ -174,40 +175,47 @@ export function startResize(event: MouseEvent, window: Window, handle: string) {
  * Handle mouse move for drag and resize
  */
 export function handleMouseMove(event: MouseEvent) {
- if (draggingWindow) {
-  draggingWindow.x = event.clientX - dragOffset.x;
-  draggingWindow.y = event.clientY - dragOffset.y;
-  windows = [...windows];
- } else if (resizingWindow && resizeHandle) {
-  const deltaX = event.clientX - resizeStart.x;
-  const deltaY = event.clientY - resizeStart.y;
+ if (!draggingWindow && !resizingWindow) return;
 
-  const minWidth = 320;
-  const minHeight = 240;
+ if (rafId !== null) cancelAnimationFrame(rafId);
 
-  if (resizeHandle.includes("e")) {
-   resizingWindow.width = Math.max(minWidth, resizeStart.width + deltaX);
-  }
-  if (resizeHandle.includes("w")) {
-   const newWidth = Math.max(minWidth, resizeStart.width - deltaX);
-   if (newWidth > minWidth) {
-    resizingWindow.x = resizeStart.windowX + deltaX;
-    resizingWindow.width = newWidth;
+ rafId = requestAnimationFrame(() => {
+  if (draggingWindow) {
+   draggingWindow.x = event.clientX - dragOffset.x;
+   draggingWindow.y = event.clientY - dragOffset.y;
+   windows = [...windows];
+  } else if (resizingWindow && resizeHandle) {
+   const deltaX = event.clientX - resizeStart.x;
+   const deltaY = event.clientY - resizeStart.y;
+
+   const minWidth = 320;
+   const minHeight = 240;
+
+   if (resizeHandle.includes("e")) {
+    resizingWindow.width = Math.max(minWidth, resizeStart.width + deltaX);
    }
-  }
-  if (resizeHandle.includes("s")) {
-   resizingWindow.height = Math.max(minHeight, resizeStart.height + deltaY);
-  }
-  if (resizeHandle.includes("n")) {
-   const newHeight = Math.max(minHeight, resizeStart.height - deltaY);
-   if (newHeight > minHeight) {
-    resizingWindow.y = resizeStart.windowY + deltaY;
-    resizingWindow.height = newHeight;
+   if (resizeHandle.includes("w")) {
+    const newWidth = Math.max(minWidth, resizeStart.width - deltaX);
+    if (newWidth > minWidth) {
+     resizingWindow.x = resizeStart.windowX + deltaX;
+     resizingWindow.width = newWidth;
+    }
    }
-  }
+   if (resizeHandle.includes("s")) {
+    resizingWindow.height = Math.max(minHeight, resizeStart.height + deltaY);
+   }
+   if (resizeHandle.includes("n")) {
+    const newHeight = Math.max(minHeight, resizeStart.height - deltaY);
+    if (newHeight > minHeight) {
+     resizingWindow.y = resizeStart.windowY + deltaY;
+     resizingWindow.height = newHeight;
+    }
+   }
 
-  windows = [...windows];
- }
+   windows = [...windows];
+  }
+  rafId = null;
+ });
 }
 
 /**
@@ -245,5 +253,11 @@ export const windowState = {
  },
  get highestZIndex() {
   return highestZIndex;
+ },
+ get draggingWindow() {
+  return draggingWindow;
+ },
+ get resizingWindow() {
+  return resizingWindow;
  },
 };

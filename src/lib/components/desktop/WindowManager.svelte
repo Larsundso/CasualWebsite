@@ -32,6 +32,8 @@
  import type { ComponentType } from "svelte";
 
  const visibleWindows = $derived(windowState.visibleWindows);
+ const draggingWindow = $derived(windowState.draggingWindow);
+ const resizingWindow = $derived(windowState.resizingWindow);
 
  const windowComponents: Record<string, any> = {
   terminal: Terminal,
@@ -79,6 +81,7 @@
   <div
    class="window"
    class:maximized={window.maximized}
+   class:dragging={draggingWindow === window || resizingWindow === window}
    role="dialog"
    aria-label={window.title}
    tabindex="0"
@@ -225,7 +228,11 @@
   display: flex;
   flex-direction: column;
   pointer-events: auto;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+ }
+
+ .window.dragging {
+  transition: none;
  }
 
  .window:hover {
