@@ -19,7 +19,7 @@
  const isReady = $derived(bootState.isReady);
  const isShuttingDown = $derived(bootState.isShuttingDown);
 
- const wallpaperPath = "/assets/neko-sleeping.gif";
+ const wallpaperPath = "https://cdn.ayakobot.com/neko-sleeping.gif";
  const isVideo = false;
 
  function handleBootComplete() {
