@@ -60,7 +60,13 @@
       class="wallpaper-video"
      ></video>
     {:else}
-     <img src={wallpaperPath} alt="Desktop Wallpaper" class="wallpaper-image" />
+     <img
+      src={wallpaperPath}
+      alt="Desktop Wallpaper"
+      class="wallpaper-image"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+     />
     {/if}
    </div>
   {/if}
