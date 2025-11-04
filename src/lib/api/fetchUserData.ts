@@ -25,8 +25,33 @@ export type GETUser = {
 export async function fetchUserData(): Promise<GETUser> {
  console.log('Fetching user data with TOKEN:', TOKEN ? 'TOKEN exists' : 'TOKEN is undefined');
 
- if (!TOKEN || TOKEN === '') {
-  throw new Error("No TOKEN provided");
+ if (!TOKEN || TOKEN === '+') {
+  return {
+   connections: [], games: { supplemental_game_data: [] }, guilds: [], apps: [], guildDetails: [],
+   user: {
+    avatar: null,
+    badges: [],
+    clan: null,
+    display_name_styles: null,
+    global_name: 'Lolo',
+    id: '1',
+    mutual_guilds: [],
+    premium_guild_since: new Date().toISOString(),
+    username: 'Lolo',
+    widgets: [],
+    premium_since: new Date().toISOString(),
+    premium_type: 2,
+    user: null as never,
+    user_profile: {
+     accent_color: null,
+     banner: null,
+     bio: 'test',
+     pronouns: 'pro/nouns',
+     theme_colors: [1, 2],
+
+    }
+   }
+  }
  }
 
  const user = await fetch(
