@@ -194,6 +194,28 @@
   flex-direction: column;
   gap: 12px;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(137, 180, 250, 0.3) transparent;
+ }
+
+ .sidebar-apps::-webkit-scrollbar {
+  width: 4px;
+ }
+
+ .sidebar-apps::-webkit-scrollbar-track {
+  background: transparent;
+ }
+
+ .sidebar-apps::-webkit-scrollbar-thumb {
+  background: rgba(137, 180, 250, 0.3);
+  border-radius: 2px;
+ }
+
+ .sidebar-apps::-webkit-scrollbar-thumb:hover {
+  background: rgba(137, 180, 250, 0.5);
  }
 
  .sidebar-app {
