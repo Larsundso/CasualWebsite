@@ -175,7 +175,6 @@ const persistedYoutubeState = loadPersistedYoutubeState();
 
 let youtubeUrl = $state(persistedYoutubeState.url);
 let youtubePlayer: any = $state(null);
-// Use different player IDs for mobile vs desktop
 let youtubePlayerId = $derived(isMobile ? "mobile-youtube-player" : "persistent-youtube-player");
 let isYoutubePlayerReady = $state(false);
 let youtubeVolume = $state(persistedYoutubeState.volume);

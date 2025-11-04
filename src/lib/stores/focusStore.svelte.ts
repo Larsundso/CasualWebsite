@@ -109,10 +109,8 @@ function completeSession(skipped: boolean = false) {
  currentSession.state = 'completed';
  currentSession.completedAt = Date.now();
 
- // Show notification
  showSessionCompleteNotification(currentSession);
 
- // Handle session transitions
  handleSessionTransition(currentSession.type);
 
  saveState();
@@ -122,7 +120,6 @@ function handleSessionTransition(completedType: SessionType) {
  if (completedType === 'focus') {
   pomodoroCount++;
 
-  // Determine next break type
   const isLongBreak = pomodoroCount % currentPreset.pomodorosUntilLongBreak === 0;
   const nextBreakType: SessionType = isLongBreak ? 'long-break' : 'short-break';
 
@@ -132,7 +129,6 @@ function handleSessionTransition(completedType: SessionType) {
    currentSession = null;
   }
  } else {
-  // Break completed
   if (currentPreset.autoStartPomodoros) {
    setTimeout(() => startSession('focus'), 2000);
   } else {
@@ -214,7 +210,6 @@ function showSessionCompleteNotification(session: FocusSession) {
  const typeMessages = messages[session.type];
  const message = typeMessages[Math.floor(Math.random() * typeMessages.length)];
 
- // Browser notification
  if ('Notification' in window && Notification.permission === 'granted') {
   new Notification('Focus Session', {
    body: message,
@@ -238,7 +233,6 @@ function loadState() {
 
   const state = JSON.parse(saved);
 
-  // Don't restore running sessions across page reloads
   if (state.currentSession?.state === 'running') {
    state.currentSession.state = 'paused';
   }

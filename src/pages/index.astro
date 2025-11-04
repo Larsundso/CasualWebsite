@@ -1,11 +1,13 @@
 ---
 import { fetchUserData } from "../lib/api/fetchUserData";
+import { fetchReadme } from "../lib/api/fetchReadme";
 import App from "../lib/components/App.svelte";
 import "../app.css";
 
 const user = await fetchUserData();
+const readme = await fetchReadme();
 
-const data = { user };
+const data = { user, readme };
 ---
 
 <!doctype html>
@@ -16,7 +18,10 @@ const data = { user };
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Security Policy -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://cdn.ayakobot.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://images-ext-2.discordapp.net data: blob:; media-src 'self' https://cdn.ayakobot.com blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://www.youtube.com https://cdn.discordapp.com https://discord.com; frame-src 'self' https://www.youtube.com; worker-src 'self' blob:;" />
+  <meta
+   http-equiv="Content-Security-Policy"
+   content="default-src 'self'; img-src 'self' https://cdn.ayakobot.com https://cdn.discordapp.com https://discordapp.com https://images-ext-1.discordapp.net https://images-ext-2.discordapp.net http://*.shields.io https://*.shields.io https://wakatime.com https://komarev.com https://top.gg https://media.giphy.com https://codestats-readme.avior.me https://raw.githubusercontent.com https://github-readme-stats.vercel.app data: blob:; media-src 'self' https://cdn.ayakobot.com blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' https://www.youtube.com https://cdn.discordapp.com https://discord.com; frame-src 'self' https://www.youtube.com; worker-src 'self' blob:;"
+  />
 
   <!-- Primary Meta Tags -->
   <title>Lolo's Desktop</title>

@@ -6,7 +6,7 @@
  import {
   windowState,
   openWindow,
-  switchWorkspace,
+  switchWorkspace
  } from "$lib/stores/windowStore.svelte";
  import { startShutdown } from "$lib/stores/bootStore.svelte";
  import { detectHardware } from "$lib/utils/hardware-detector";
@@ -21,10 +21,12 @@
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import IconClock from "@tabler/icons-svelte/icons/clock";
  import IconCheckbox from "@tabler/icons-svelte/icons/checkbox";
+ import IconBook from "@tabler/icons-svelte/icons/book";
  import type { ComponentType } from "svelte";
 
  const iconMap: Record<string, ComponentType> = {
   user: IconUser,
+  book: IconBook,
   clock: IconClock,
   checkbox: IconCheckbox,
   gamepad: IconDeviceGamepad2,
@@ -32,7 +34,7 @@
   message: IconMessage,
   apps: IconApps,
   terminal: IconTerminal,
-  settings: IconSettings,
+  settings: IconSettings
  };
 
  function getAppIcon(iconName: string): ComponentType {

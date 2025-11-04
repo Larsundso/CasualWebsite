@@ -5,15 +5,17 @@
  import Desktop from "./desktop/Desktop.svelte";
  import { bootState, completeBoot } from "$lib/stores/bootStore.svelte";
  import { userStore } from "$lib/stores/userStore.svelte";
+ import { readmeStore } from "$lib/stores/readmeStore.svelte";
  import type { GETUser } from "$lib/api/fetchUserData";
 
  interface Props {
-  data: { user: GETUser };
+  data: { user: GETUser; readme: string };
  }
 
  let { data }: Props = $props();
 
  userStore.set(data.user);
+ readmeStore.set(data.readme);
 
  const isBooting = $derived(bootState.isBooting);
  const isReady = $derived(bootState.isReady);

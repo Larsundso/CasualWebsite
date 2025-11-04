@@ -4,6 +4,7 @@
 
 export const sidebarApps = [
  { id: 'profile', icon: 'user', label: 'Profile', color: '#cba6f7' },
+ { id: 'readme', icon: 'book', label: 'README', color: '#f9e2af' },
  { id: 'focus', icon: 'clock', label: 'Focus', color: '#a6e3a1' },
  { id: 'todos', icon: 'checkbox', label: 'Tasks', color: '#89b4fa' },
  { id: 'games', icon: 'gamepad', label: 'Games', color: '#f38ba8' },

@@ -13,7 +13,7 @@
   startDrag,
   startResize,
   handleMouseMove,
-  handleMouseUp,
+  handleMouseUp
  } from "$lib/stores/windowStore.svelte";
 
  let isMobile = $state(false);
@@ -21,6 +21,7 @@
  import Terminal from "$lib/components/windows/Terminal.svelte";
  import MusicPlayer from "$lib/components/windows/MusicPlayer.svelte";
  import ProfileWindow from "$lib/components/windows/ProfileWindow.svelte";
+ import ReadmeWindow from "$lib/components/windows/ReadmeWindow.svelte";
  import GamesWindow from "$lib/components/windows/GamesWindow.svelte";
  import ServersWindow from "$lib/components/windows/ServersWindow.svelte";
  import AppsWindow from "$lib/components/windows/AppsWindow.svelte";
@@ -37,6 +38,7 @@
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import IconClock from "@tabler/icons-svelte/icons/clock";
  import IconCheckbox from "@tabler/icons-svelte/icons/checkbox";
+ import IconBook from "@tabler/icons-svelte/icons/book";
  import type { ComponentType } from "svelte";
 
  const visibleWindows = $derived(windowState.visibleWindows);
@@ -47,16 +49,18 @@
   terminal: Terminal,
   music: MusicPlayer,
   profile: ProfileWindow,
+  readme: ReadmeWindow,
   focus: FocusWindow,
   todos: TodoWindow,
   games: GamesWindow,
   servers: ServersWindow,
   apps: AppsWindow,
-  settings: SettingsWindow,
+  settings: SettingsWindow
  };
 
  const iconMap: Record<string, ComponentType> = {
   user: IconUser,
+  book: IconBook,
   clock: IconClock,
   checkbox: IconCheckbox,
   gamepad: IconDeviceGamepad2,
@@ -64,7 +68,7 @@
   message: IconMessage,
   apps: IconApps,
   terminal: IconTerminal,
-  settings: IconSettings,
+  settings: IconSettings
  };
 
  function getWindowIcon(iconName: string): ComponentType {
@@ -86,7 +90,6 @@
   window.addEventListener("mousemove", handleMove);
   window.addEventListener("mouseup", handleUp);
 
-  // Add touch event handlers for mobile
   const handleTouchMove = (e: TouchEvent) => {
    if (e.touches.length > 0) {
     const touch = e.touches[0];
@@ -94,7 +97,7 @@
      clientX: touch.clientX,
      clientY: touch.clientY,
      bubbles: true,
-     cancelable: true,
+     cancelable: true
     });
     handleMouseMove(mouseEvent);
    }
