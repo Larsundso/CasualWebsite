@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import { sidebarApps } from "$lib/data/sidebarApps";
  import { systemState } from "$lib/stores/systemStore.svelte";

@@ -1,18 +1,27 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import IconSettings from "@tabler/icons-svelte/icons/settings";
  import IconKeyboard from "@tabler/icons-svelte/icons/keyboard";
  import IconRefresh from "@tabler/icons-svelte/icons/refresh";
- import { restoreDefaultCategories, restoreDefaultPriorities } from '$lib/stores/todoStore.svelte';
+ import {
+  restoreDefaultCategories,
+  restoreDefaultPriorities,
+ } from "$lib/stores/todoStore.svelte";
 
  let theme = $state("dark");
  let animations = $state(true);
  let soundEffects = $state(true);
 
  function handleRestorePresets() {
-  if (confirm('Restore default categories and priorities? This will not delete your custom ones.')) {
+  if (
+   confirm(
+    "Restore default categories and priorities? This will not delete your custom ones."
+   )
+  ) {
    restoreDefaultCategories();
    restoreDefaultPriorities();
-   alert('Default presets restored successfully!');
+   alert("Default presets restored successfully!");
   }
  }
 
@@ -84,8 +93,13 @@
   </h3>
   <div class="setting-item">
    <div style="flex: 1;">
-    <div style="font-weight: 600; margin-bottom: 4px;">Restore Default Categories & Priorities</div>
-    <div style="font-size: 12px; opacity: 0.7;">Restores Work, Personal, Learning, Projects categories and High, Medium, Low priorities</div>
+    <div style="font-weight: 600; margin-bottom: 4px;">
+     Restore Default Categories & Priorities
+    </div>
+    <div style="font-size: 12px; opacity: 0.7;">
+     Restores Work, Personal, Learning, Projects categories and High, Medium,
+     Low priorities
+    </div>
    </div>
    <button class="restore-btn" onclick={handleRestorePresets}>
     <IconRefresh size={16} stroke={1.5} />

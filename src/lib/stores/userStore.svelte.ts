@@ -1,4 +1,4 @@
-import type { GETUser } from "../../routes/api/user/+server";
+import type { GETUser } from "../api/fetchUserData";
 
 let userData: GETUser | null = $state(null);
 

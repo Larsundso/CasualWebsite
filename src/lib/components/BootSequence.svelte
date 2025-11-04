@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import { onMount } from "svelte";
  import { detectHardware } from "$lib/utils/hardware-detector";

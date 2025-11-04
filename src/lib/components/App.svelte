@@ -1,16 +1,14 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
- import BootSequence from "$lib/components/BootSequence.svelte";
- import Desktop from "$lib/components/desktop/Desktop.svelte";
+ import BootSequence from "./BootSequence.svelte";
+ import Desktop from "./desktop/Desktop.svelte";
  import { bootState, completeBoot } from "$lib/stores/bootStore.svelte";
  import { userStore } from "$lib/stores/userStore.svelte";
- import type { GETUser } from "./api/user/+server";
- import "../app.css";
+ import type { GETUser } from "$lib/api/fetchUserData";
 
  interface Props {
-  data: {
-   wallpapers: string[];
-   user: GETUser;
-  };
+  data: { user: GETUser };
  }
 
  let { data }: Props = $props();
@@ -21,12 +19,8 @@
  const isReady = $derived(bootState.isReady);
  const isShuttingDown = $derived(bootState.isShuttingDown);
 
- const wallpaperPath = $derived(data.wallpapers[0] || null);
- const isVideo = $derived.by(() => {
-  if (!wallpaperPath) return false;
-  const ext = wallpaperPath.toLowerCase();
-  return ext.endsWith(".mp4") || ext.endsWith(".webm") || ext.endsWith(".mov");
- });
+ const wallpaperPath = "/assets/neko-sleeping.gif";
+ const isVideo = false;
 
  function handleBootComplete() {
   completeBoot();

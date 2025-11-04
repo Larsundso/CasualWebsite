@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import {
   focusState,
@@ -96,7 +98,11 @@
   <!-- Controls -->
   <div class="controls">
    {#if isIdle}
-    <button type="button" class="control-btn primary" onclick={() => handleStart("focus")}>
+    <button
+     type="button"
+     class="control-btn primary"
+     onclick={() => handleStart("focus")}
+    >
      <IconPlayerPlay size={24} stroke={1.5} />
      <span>Start Focus</span>
     </button>

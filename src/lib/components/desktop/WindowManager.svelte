@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import { fade, scale } from "svelte/transition";
  import { quintOut } from "svelte/easing";

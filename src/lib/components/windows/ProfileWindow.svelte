@@ -1,3 +1,5 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
  import { userStore } from "$lib/stores/userStore.svelte";
  import { PremiumType, Genres } from "$lib/types/discord";

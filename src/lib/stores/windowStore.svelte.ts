@@ -57,17 +57,17 @@ export function openWindow(appId: string, title: string, icon: string) {
   width: mobile
    ? globalThis.innerWidth
    : appId === "profile" || appId === "servers" || appId === "apps"
-   ? 520
-   : appId === "games"
-   ? 700
-   : defaultWidth,
+    ? 520
+    : appId === "games"
+     ? 700
+     : defaultWidth,
   height: mobile
    ? globalThis.innerHeight - 70
    : appId === "profile" || appId === "servers" || appId === "apps"
-   ? 600
-   : appId === "games"
-   ? 650
-   : defaultHeight,
+    ? 600
+    : appId === "games"
+     ? 650
+     : defaultHeight,
   zIndex: ++highestZIndex,
   workspace: currentWorkspace,
  };

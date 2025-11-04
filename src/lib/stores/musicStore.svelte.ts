@@ -12,7 +12,7 @@ function isMobileDevice(): boolean {
 
  const userAgent = window.navigator.userAgent.toLowerCase();
  const isIOS = /iphone|ipad|ipod/.test(userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad on iOS 13+
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
  const isAndroid = /android/.test(userAgent);
 
  return isIOS || isAndroid;
@@ -214,9 +214,7 @@ export function restoreSoundPlayback() {
 
  sounds.forEach((sound, index) => {
   if (sound.playing) {
-   // Reset playing state to false first, so toggleSound will turn it on
    sound.playing = false;
-   // Try to start playback
    attemptSoundPlayback(index);
   }
  });

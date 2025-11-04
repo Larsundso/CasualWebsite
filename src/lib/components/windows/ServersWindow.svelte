@@ -1,7 +1,9 @@
+<svelte:options runes={true} />
+
 <script lang="ts">
- import { onMount } from "svelte";
- import type { GETUser } from "../../../routes/api/user/+server";
+ import type { GETUser } from "$lib/api/fetchUserData";
  import type { Guild, ExtendedGuild } from "$lib/types/discord";
+ import { userStore } from "$lib/stores/userStore.svelte";
  import IconCrown from "@tabler/icons-svelte/icons/crown";
  import IconShield from "@tabler/icons-svelte/icons/shield";
  import IconSettings from "@tabler/icons-svelte/icons/settings";
@@ -11,19 +13,7 @@
  import IconSparkles from "@tabler/icons-svelte/icons/sparkles";
  import IconExternalLink from "@tabler/icons-svelte/icons/external-link";
 
- let userData = $state<GETUser | null>(null);
- let loading = $state(true);
-
- onMount(async () => {
-  try {
-   const response = await fetch("/api/user");
-   userData = await response.json();
-  } catch (error) {
-   console.error("Failed to fetch user data:", error);
-  } finally {
-   loading = false;
-  }
- });
+ const userData = $derived(userStore.data);
 
  const guilds = $derived.by(() => {
   if (!userData?.guilds || !userData?.guildDetails) return [];
@@ -91,7 +81,7 @@
 
 <div class="servers-window">
  <h2 class="servers-title">Discord Servers</h2>
- {#if loading}
+ {#if !userData}
   <div class="loading">Loading servers...</div>
  {:else if guilds.length === 0}
   <div class="no-servers">No servers found</div>
@@ -429,6 +419,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;

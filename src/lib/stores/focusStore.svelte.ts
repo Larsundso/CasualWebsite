@@ -23,21 +23,21 @@ let focusModeActive = $state(false);
 // ============================================
 
 function getDefaultPreset(): SessionPreset {
-	return {
-		id: 'classic',
-		name: 'Classic Pomodoro',
-		icon: '🍅',
-		focusDuration: 25 * 60,
-		shortBreakDuration: 5 * 60,
-		longBreakDuration: 15 * 60,
-		pomodorosUntilLongBreak: 4,
-		autoStartBreaks: true,
-		autoStartPomodoros: false,
-		notifications: {
-			sound: true,
-			desktop: true
-		}
-	};
+ return {
+  id: 'classic',
+  name: 'Classic Pomodoro',
+  icon: '🍅',
+  focusDuration: 25 * 60,
+  shortBreakDuration: 5 * 60,
+  longBreakDuration: 15 * 60,
+  pomodorosUntilLongBreak: 4,
+  autoStartBreaks: true,
+  autoStartPomodoros: false,
+  notifications: {
+   sound: true,
+   desktop: true
+  }
+ };
 }
 
 // ============================================
@@ -45,100 +45,100 @@ function getDefaultPreset(): SessionPreset {
 // ============================================
 
 export function startSession(type: SessionType, task?: string) {
-	if (currentSession?.state === 'running') {
-		pauseSession();
-	}
+ if (currentSession?.state === 'running') {
+  pauseSession();
+ }
 
-	const duration = getSessionDuration(type);
+ const duration = getSessionDuration(type);
 
-	currentSession = {
-		id: crypto.randomUUID(),
-		type,
-		duration,
-		remaining: duration,
-		state: 'running',
-		startedAt: Date.now(),
-		pausedAt: null,
-		completedAt: null,
-		task,
-		pomodoroCount: type === 'focus' ? pomodoroCount + 1 : undefined
-	};
+ currentSession = {
+  id: crypto.randomUUID(),
+  type,
+  duration,
+  remaining: duration,
+  state: 'running',
+  startedAt: Date.now(),
+  pausedAt: null,
+  completedAt: null,
+  task,
+  pomodoroCount: type === 'focus' ? pomodoroCount + 1 : undefined
+ };
 
-	startTimer();
-	applyEnvironment(type);
-	saveState();
+ startTimer();
+ applyEnvironment(type);
+ saveState();
 }
 
 export function pauseSession() {
-	if (!currentSession || currentSession.state !== 'running') return;
+ if (!currentSession || currentSession.state !== 'running') return;
 
-	currentSession.state = 'paused';
-	currentSession.pausedAt = Date.now();
-	stopTimer();
-	saveState();
+ currentSession.state = 'paused';
+ currentSession.pausedAt = Date.now();
+ stopTimer();
+ saveState();
 }
 
 export function resumeSession() {
-	if (!currentSession || currentSession.state !== 'paused') return;
+ if (!currentSession || currentSession.state !== 'paused') return;
 
-	currentSession.state = 'running';
-	currentSession.pausedAt = null;
-	startTimer();
-	saveState();
+ currentSession.state = 'running';
+ currentSession.pausedAt = null;
+ startTimer();
+ saveState();
 }
 
 export function skipSession() {
-	if (!currentSession) return;
-	completeSession(true);
+ if (!currentSession) return;
+ completeSession(true);
 }
 
 export function stopSession() {
-	if (!currentSession) return;
+ if (!currentSession) return;
 
-	stopTimer();
-	currentSession = null;
-	exitFocusMode();
-	saveState();
+ stopTimer();
+ currentSession = null;
+ exitFocusMode();
+ saveState();
 }
 
 function completeSession(skipped: boolean = false) {
-	if (!currentSession) return;
+ if (!currentSession) return;
 
-	stopTimer();
+ stopTimer();
 
-	currentSession.state = 'completed';
-	currentSession.completedAt = Date.now();
+ currentSession.state = 'completed';
+ currentSession.completedAt = Date.now();
 
-	// Show notification
-	showSessionCompleteNotification(currentSession);
+ // Show notification
+ showSessionCompleteNotification(currentSession);
 
-	// Handle session transitions
-	handleSessionTransition(currentSession.type);
+ // Handle session transitions
+ handleSessionTransition(currentSession.type);
 
-	saveState();
+ saveState();
 }
 
 function handleSessionTransition(completedType: SessionType) {
-	if (completedType === 'focus') {
-		pomodoroCount++;
+ if (completedType === 'focus') {
+  pomodoroCount++;
 
-		// Determine next break type
-		const isLongBreak = pomodoroCount % currentPreset.pomodorosUntilLongBreak === 0;
-		const nextBreakType: SessionType = isLongBreak ? 'long-break' : 'short-break';
+  // Determine next break type
+  const isLongBreak = pomodoroCount % currentPreset.pomodorosUntilLongBreak === 0;
+  const nextBreakType: SessionType = isLongBreak ? 'long-break' : 'short-break';
 
-		if (currentPreset.autoStartBreaks) {
-			setTimeout(() => startSession(nextBreakType), 2000);
-		} else {
-			currentSession = null;
-		}
-	} else {
-		// Break completed
-		if (currentPreset.autoStartPomodoros) {
-			setTimeout(() => startSession('focus'), 2000);
-		} else {
-			currentSession = null;
-		}
-	}
+  if (currentPreset.autoStartBreaks) {
+   setTimeout(() => startSession(nextBreakType), 2000);
+  } else {
+   currentSession = null;
+  }
+ } else {
+  // Break completed
+  if (currentPreset.autoStartPomodoros) {
+   setTimeout(() => startSession('focus'), 2000);
+  } else {
+   currentSession = null;
+  }
+ }
 }
 
 // ============================================
@@ -146,32 +146,29 @@ function handleSessionTransition(completedType: SessionType) {
 // ============================================
 
 function startTimer() {
-	stopTimer(); // Clear any existing timer
+ stopTimer();
 
-	timerInterval = window.setInterval(() => {
-		if (!currentSession || currentSession.state !== 'running') {
-			stopTimer();
-			return;
-		}
+ timerInterval = window.setInterval(() => {
+  if (!currentSession || currentSession.state !== 'running') {
+   stopTimer();
+   return;
+  }
 
-		currentSession.remaining--;
+  currentSession.remaining--;
 
-		if (currentSession.remaining <= 0) {
-			completeSession();
-		}
+  if (currentSession.remaining <= 0) {
+   completeSession();
+  }
 
-		// Save every 10 seconds to prevent data loss
-		if (currentSession.remaining % 10 === 0) {
-			saveState();
-		}
-	}, 1000);
+  if (currentSession.remaining % 10 === 0) saveState();
+ }, 1000);
 }
 
 function stopTimer() {
-	if (timerInterval !== null) {
-		clearInterval(timerInterval);
-		timerInterval = null;
-	}
+ if (timerInterval !== null) {
+  clearInterval(timerInterval);
+  timerInterval = null;
+ }
 }
 
 // ============================================
@@ -179,21 +176,21 @@ function stopTimer() {
 // ============================================
 
 function applyEnvironment(sessionType: SessionType) {
-	if (sessionType === 'focus') {
-		enterFocusMode();
-	} else {
-		exitFocusMode();
-	}
+ if (sessionType === 'focus') {
+  enterFocusMode();
+ } else {
+  exitFocusMode();
+ }
 }
 
 function enterFocusMode() {
-	focusModeActive = true;
-	document.body.classList.add('focus-mode');
+ focusModeActive = true;
+ document.body.classList.add('focus-mode');
 }
 
 function exitFocusMode() {
-	focusModeActive = false;
-	document.body.classList.remove('focus-mode');
+ focusModeActive = false;
+ document.body.classList.remove('focus-mode');
 }
 
 
@@ -202,30 +199,30 @@ function exitFocusMode() {
 // ============================================
 
 function showSessionCompleteNotification(session: FocusSession) {
-	if (!currentPreset.notifications.desktop) return;
+ if (!currentPreset.notifications.desktop) return;
 
-	const messages: Record<SessionType, string[]> = {
-		focus: [
-			'🎉 Focus session complete! Time for a break.',
-			'💪 Great work! You earned a break.',
-			'✅ Session done! Stretch and relax.'
-		],
-		'short-break': ['⏰ Break over! Ready to focus again?', '🚀 Recharged! Back to work.'],
-		'long-break': ['🌟 Long break complete! Feeling refreshed?', '💯 Great session streak!']
-	};
+ const messages: Record<SessionType, string[]> = {
+  focus: [
+   '🎉 Focus session complete! Time for a break.',
+   '💪 Great work! You earned a break.',
+   '✅ Session done! Stretch and relax.'
+  ],
+  'short-break': ['⏰ Break over! Ready to focus again?', '🚀 Recharged! Back to work.'],
+  'long-break': ['🌟 Long break complete! Feeling refreshed?', '💯 Great session streak!']
+ };
 
-	const typeMessages = messages[session.type];
-	const message = typeMessages[Math.floor(Math.random() * typeMessages.length)];
+ const typeMessages = messages[session.type];
+ const message = typeMessages[Math.floor(Math.random() * typeMessages.length)];
 
-	// Browser notification
-	if ('Notification' in window && Notification.permission === 'granted') {
-		new Notification('Focus Session', {
-			body: message,
-			icon: '/favicon.png'
-		});
-	} else if ('Notification' in window && Notification.permission === 'default') {
-		Notification.requestPermission();
-	}
+ // Browser notification
+ if ('Notification' in window && Notification.permission === 'granted') {
+  new Notification('Focus Session', {
+   body: message,
+   icon: '/favicon.png'
+  });
+ } else if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+ }
 }
 
 // ============================================
@@ -233,67 +230,67 @@ function showSessionCompleteNotification(session: FocusSession) {
 // ============================================
 
 function loadState() {
-	if (typeof localStorage === 'undefined') return;
+ if (typeof localStorage === 'undefined') return;
 
-	try {
-		const saved = localStorage.getItem(FOCUS_STATE_KEY);
-		if (!saved) return;
+ try {
+  const saved = localStorage.getItem(FOCUS_STATE_KEY);
+  if (!saved) return;
 
-		const state = JSON.parse(saved);
+  const state = JSON.parse(saved);
 
-		// Don't restore running sessions across page reloads
-		if (state.currentSession?.state === 'running') {
-			state.currentSession.state = 'paused';
-		}
+  // Don't restore running sessions across page reloads
+  if (state.currentSession?.state === 'running') {
+   state.currentSession.state = 'paused';
+  }
 
-		currentSession = state.currentSession;
-		pomodoroCount = state.pomodoroCount || 0;
-	} catch (error) {
-		console.error('Failed to load focus state:', error);
-	}
+  currentSession = state.currentSession;
+  pomodoroCount = state.pomodoroCount || 0;
+ } catch (error) {
+  console.error('Failed to load focus state:', error);
+ }
 }
 
 function saveState() {
-	if (typeof localStorage === 'undefined') return;
+ if (typeof localStorage === 'undefined') return;
 
-	try {
-		const state = {
-			currentSession,
-			pomodoroCount,
-			lastSaved: Date.now()
-		};
-		localStorage.setItem(FOCUS_STATE_KEY, JSON.stringify(state));
-	} catch (error) {
-		console.error('Failed to save focus state:', error);
-	}
+ try {
+  const state = {
+   currentSession,
+   pomodoroCount,
+   lastSaved: Date.now()
+  };
+  localStorage.setItem(FOCUS_STATE_KEY, JSON.stringify(state));
+ } catch (error) {
+  console.error('Failed to save focus state:', error);
+ }
 }
 
 function loadPreset(): SessionPreset {
-	if (typeof localStorage === 'undefined') {
-		return getDefaultPreset();
-	}
+ if (typeof localStorage === 'undefined') {
+  return getDefaultPreset();
+ }
 
-	try {
-		const saved = localStorage.getItem(FOCUS_SETTINGS_KEY);
-		if (!saved) return getDefaultPreset();
+ try {
+  const saved = localStorage.getItem(FOCUS_SETTINGS_KEY);
+  if (!saved) return getDefaultPreset();
 
-		return JSON.parse(saved);
-	} catch (error) {
-		console.error('Failed to load preset:', error);
-		return getDefaultPreset();
-	}
+  return JSON.parse(saved);
+ } catch (error) {
+  console.error('Failed to load preset:', error);
+  return getDefaultPreset();
+ }
 }
 
 export function savePreset(preset: SessionPreset) {
-	currentPreset = preset;
+ currentPreset = preset;
 
-	if (typeof localStorage === 'undefined') return;
+ if (typeof localStorage === 'undefined') return;
 
-	try {
-		localStorage.setItem(FOCUS_SETTINGS_KEY, JSON.stringify(preset));
-	} catch (error) {
-		console.error('Failed to save preset:', error);
-	}
+ try {
+  localStorage.setItem(FOCUS_SETTINGS_KEY, JSON.stringify(preset));
+ } catch (error) {
+  console.error('Failed to save preset:', error);
+ }
 }
 
 
@@ -302,20 +299,20 @@ export function savePreset(preset: SessionPreset) {
 // ============================================
 
 function getSessionDuration(type: SessionType): number {
-	switch (type) {
-		case 'focus':
-			return currentPreset.focusDuration;
-		case 'short-break':
-			return currentPreset.shortBreakDuration;
-		case 'long-break':
-			return currentPreset.longBreakDuration;
-	}
+ switch (type) {
+  case 'focus':
+   return currentPreset.focusDuration;
+  case 'short-break':
+   return currentPreset.shortBreakDuration;
+  case 'long-break':
+   return currentPreset.longBreakDuration;
+ }
 }
 
 export function formatTime(seconds: number): string {
-	const mins = Math.floor(seconds / 60);
-	const secs = seconds % 60;
-	return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+ const mins = Math.floor(seconds / 60);
+ const secs = seconds % 60;
+ return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 // ============================================
@@ -323,21 +320,20 @@ export function formatTime(seconds: number): string {
 // ============================================
 
 export const focusState = {
-	get currentSession() {
-		return currentSession;
-	},
-	get pomodoroCount() {
-		return pomodoroCount;
-	},
-	get focusModeActive() {
-		return focusModeActive;
-	},
-	get currentPreset() {
-		return currentPreset;
-	}
+ get currentSession() {
+  return currentSession;
+ },
+ get pomodoroCount() {
+  return pomodoroCount;
+ },
+ get focusModeActive() {
+  return focusModeActive;
+ },
+ get currentPreset() {
+  return currentPreset;
+ }
 };
 
-// Initialize on load
 if (typeof window !== 'undefined') {
-	loadState();
+ loadState();
 }

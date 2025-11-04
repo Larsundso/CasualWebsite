@@ -1,0 +1,50 @@
+---
+import { fetchUserData } from "../lib/api/fetchUserData";
+import App from "../lib/components/App.svelte";
+import "../app.css";
+
+const user = await fetchUserData();
+
+const data = { user };
+---
+
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Primary Meta Tags -->
+  <title>Lolo's Desktop</title>
+  <meta name="title" content="Lolo's Desktop" />
+  <meta
+   name="description"
+   content="Experience a fully interactive Arch Linux desktop environment with Windowland compositor, featuring boot sequences, window management, terminal, music player, and ambient sounds. Built with Astro and Svelte."
+  />
+  <meta name="author" content="Lolo" />
+  <meta
+   name="keywords"
+   content="arch linux, windowland, desktop environment, portfolio, svelte, astro, interactive, web desktop"
+  />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Lolo's Desktop" />
+  <meta
+   property="og:description"
+   content="Experience a fully interactive Arch Linux desktop environment with Windowland compositor in your browser."
+  />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="Lolo's Desktop" />
+  <meta
+   property="twitter:description"
+   content="Experience a fully interactive Arch Linux desktop environment with Windowland compositor in your browser."
+  />
+ </head>
+ <body>
+  <App client:load {data} />
+ </body>
+</html>
