@@ -13,7 +13,8 @@ export default defineConfig({
  ],
  output: "static",
  build: {
-  inlineStylesheets: "auto",
+  inlineStylesheets: "never",
+  assets: "_astro",
  },
  env: {
   schema: {
@@ -31,6 +32,9 @@ export default defineConfig({
   },
   optimizeDeps: {
    exclude: ["@tabler/icons-svelte"],
+  },
+  build: {
+   cssCodeSplit: false,
   },
  },
 });
