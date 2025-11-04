@@ -124,7 +124,7 @@
          </div>
         {/if}
         {#if isAdmin}
-         <div class="badge admin" data-tooltip="Owner / Co-Owner / Admin">
+         <div class="badge admin" data-tooltip="Co-Owner / Admin">
           <IconShield size={16} stroke={2} />
          </div>
         {/if}
