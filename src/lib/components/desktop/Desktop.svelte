@@ -9,7 +9,7 @@
  import {
   initYouTubePlayer,
   cleanupMusicStore,
-  musicState,
+  musicState
  } from "$lib/stores/musicStore.svelte";
 
  import Sidebar from "./Sidebar.svelte";
@@ -20,9 +20,6 @@
   isVideo: boolean;
  }
 
- let { wallpaperPath, isVideo }: Props = $props();
-
- const currentWorkspace = $derived(windowState.currentWorkspace);
  const isReady = $derived(bootState.isReady);
 
  onMount(() => {
@@ -48,28 +45,13 @@
 {#if isReady}
  <div class="desktop" transition:fade={{ duration: 300 }}>
   <!-- Wallpaper -->
-  {#if wallpaperPath}
-   <div class="wallpaper-container">
-    {#if isVideo}
-     <video
-      src={wallpaperPath}
-      autoplay
-      loop
-      muted
-      playsinline
-      class="wallpaper-video"
-     ></video>
-    {:else}
-     <img
-      src={wallpaperPath}
-      alt="Desktop Wallpaper"
-      class="wallpaper-image"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-     />
-    {/if}
-   </div>
-  {/if}
+  <img
+   src="https://cdn.ayakobot.com/neko-sleeping.gif"
+   alt="Desktop Wallpaper"
+   class="wallpaper-image"
+   referrerpolicy="no-referrer"
+   loading="lazy"
+  />
 
   <!-- Sidebar -->
   <Sidebar />
@@ -93,13 +75,6 @@
   overflow: hidden;
  }
 
- .wallpaper-container {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
- }
-
- .wallpaper-video,
  .wallpaper-image {
   width: 100%;
   height: 100%;

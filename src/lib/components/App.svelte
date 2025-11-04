@@ -19,9 +19,6 @@
  const isReady = $derived(bootState.isReady);
  const isShuttingDown = $derived(bootState.isShuttingDown);
 
- const wallpaperPath = "https://cdn.ayakobot.com/neko-sleeping.gif";
- const isVideo = false;
-
  function handleBootComplete() {
   completeBoot();
  }
@@ -32,5 +29,5 @@
 {/if}
 
 {#if isReady && !isShuttingDown}
- <Desktop {wallpaperPath} {isVideo} />
+ <Desktop />
 {/if}
