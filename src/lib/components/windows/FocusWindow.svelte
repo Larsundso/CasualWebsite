@@ -62,7 +62,7 @@
 
   <!-- Timer Display -->
   <div class="timer-display" class:running={isRunning}>
-   <svg class="timer-ring" width="280" height="280">
+   <svg class="timer-ring" viewBox="0 0 280 280">
     <circle class="timer-ring-bg" cx="140" cy="140" r="120" />
     <circle
      class="timer-ring-progress"
@@ -96,41 +96,43 @@
   <!-- Controls -->
   <div class="controls">
    {#if isIdle}
-    <button class="control-btn primary" onclick={() => handleStart("focus")}>
+    <button type="button" class="control-btn primary" onclick={() => handleStart("focus")}>
      <IconPlayerPlay size={24} stroke={1.5} />
      <span>Start Focus</span>
     </button>
     <button
+     type="button"
      class="control-btn secondary"
      onclick={() => handleStart("short-break")}
     >
      <span>Short Break</span>
     </button>
     <button
+     type="button"
      class="control-btn secondary"
      onclick={() => handleStart("long-break")}
     >
      <span>Long Break</span>
     </button>
    {:else if isRunning}
-    <button class="control-btn" onclick={pauseSession}>
+    <button type="button" class="control-btn" onclick={pauseSession}>
      <IconPlayerPause size={24} stroke={1.5} />
      <span>Pause</span>
     </button>
-    <button class="control-btn" onclick={skipSession}>
+    <button type="button" class="control-btn" onclick={skipSession}>
      <IconPlayerSkipForward size={24} stroke={1.5} />
      <span>Skip</span>
     </button>
-    <button class="control-btn danger" onclick={stopSession}>
+    <button type="button" class="control-btn danger" onclick={stopSession}>
      <IconPlayerStop size={24} stroke={1.5} />
      <span>Stop</span>
     </button>
    {:else if isPaused}
-    <button class="control-btn primary" onclick={resumeSession}>
+    <button type="button" class="control-btn primary" onclick={resumeSession}>
      <IconPlayerPlay size={24} stroke={1.5} />
      <span>Resume</span>
     </button>
-    <button class="control-btn danger" onclick={stopSession}>
+    <button type="button" class="control-btn danger" onclick={stopSession}>
      <IconPlayerStop size={24} stroke={1.5} />
      <span>Stop</span>
     </button>
@@ -234,6 +236,9 @@
 
  .timer-ring {
   transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+  display: block;
  }
 
  .timer-ring-bg {
@@ -302,12 +307,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .control-btn:hover {
   background: rgba(203, 166, 247, 0.2);
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(203, 166, 247, 0.3);
+ }
+
+ .control-btn:active {
+  transform: translateY(0);
+  opacity: 0.8;
  }
 
  .control-btn.primary {
@@ -374,11 +388,23 @@
   .controls {
    flex-direction: column;
    width: 100%;
+   gap: 12px;
   }
 
   .control-btn {
    width: 100%;
    justify-content: center;
+   min-height: 48px;
+   padding: 14px 24px;
+   font-size: 16px;
+  }
+
+  .control-btn:active {
+   background: rgba(203, 166, 247, 0.3);
+  }
+
+  .control-btn.primary:active {
+   opacity: 0.9;
   }
  }
 </style>

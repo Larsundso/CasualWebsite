@@ -120,14 +120,23 @@
  <div class="presets-section">
   <div class="presets-header">
    <h3 class="section-title">Sound Presets</h3>
-   <button class="stop-all-btn" onclick={stopAllSounds} title="Stop All Sounds">
+   <button
+    type="button"
+    class="stop-all-btn"
+    onclick={stopAllSounds}
+    title="Stop All Sounds"
+   >
     <IconPlayerStop size={16} stroke={1.5} />
     Stop All
    </button>
   </div>
   <div class="presets-grid">
    {#each soundPresets as preset}
-    <button class="preset-btn" onclick={() => applyPreset(preset)}>
+    <button
+     type="button"
+     class="preset-btn"
+     onclick={() => applyPreset(preset)}
+    >
      <span class="preset-icon">{preset.icon}</span>
      <div class="preset-info">
       <span class="preset-name">{preset.name}</span>
@@ -143,6 +152,7 @@
   <div class="sound-control youtube-control">
    <div class="sound-header">
     <button
+     type="button"
      class="expand-toggle"
      onclick={() => (youtubeExpanded = !youtubeExpanded)}
     >
@@ -156,43 +166,79 @@
      <IconBrandYoutube size={20} stroke={1.5} />
     </span>
     <span class="sound-name">YouTube Music</span>
-    <div class="youtube-controls">
-     <button
-      class="youtube-skip-btn"
-      onclick={previousYoutubeVideo}
-      disabled={!musicState.isPlayerReady}
-      title="Previous video"
-     >
-      <IconPlayerSkipBack size={16} stroke={1.5} />
-     </button>
-     <button
-      class="sound-toggle"
-      class:playing={youtubePlaying}
-      onclick={toggleYoutube}
-      disabled={!musicState.isPlayerReady}
-     >
-      {#if youtubePlaying}
-       <IconPlayerPause size={16} stroke={1.5} />
-      {:else}
-       <IconPlayerPlay size={16} stroke={1.5} />
-      {/if}
-     </button>
-     <button
-      class="youtube-skip-btn"
-      onclick={nextYoutubeVideo}
-      disabled={!musicState.isPlayerReady}
-      title="Next video"
-     >
-      <IconPlayerSkipForward size={16} stroke={1.5} />
-     </button>
-    </div>
+    {#if !musicState.isMobile}
+     <div class="youtube-controls">
+      <button
+       type="button"
+       class="youtube-skip-btn"
+       onclick={previousYoutubeVideo}
+       disabled={!musicState.isPlayerReady}
+       title="Previous video"
+      >
+       <IconPlayerSkipBack size={16} stroke={1.5} />
+      </button>
+      <button
+       type="button"
+       class="sound-toggle"
+       class:playing={youtubePlaying}
+       onclick={toggleYoutube}
+       disabled={!musicState.isPlayerReady}
+      >
+       {#if youtubePlaying}
+        <IconPlayerPause size={16} stroke={1.5} />
+       {:else}
+        <IconPlayerPlay size={16} stroke={1.5} />
+       {/if}
+      </button>
+      <button
+       type="button"
+       class="youtube-skip-btn"
+       onclick={nextYoutubeVideo}
+       disabled={!musicState.isPlayerReady}
+       title="Next video"
+      >
+       <IconPlayerSkipForward size={16} stroke={1.5} />
+      </button>
+     </div>
+    {/if}
    </div>
 
    <!-- Visualizer (placeholder for YouTube - no actual analyser) -->
    <div class="sound-visualizer-container">
-    <div class="youtube-visualizer-placeholder">
-     <span>Audio playing from YouTube iframe</span>
-    </div>
+    {#if musicState.isMobile}
+     <div class="youtube-mobile-fallback">
+      {#if musicState.playlistId}
+       <div class="mobile-youtube-message">
+        <IconBrandYoutube size={48} stroke={1.5} />
+        <p class="message-title">YouTube Music</p>
+        <p class="message-text">
+         Due to YouTube's mobile restrictions, playlists cannot be embedded.
+        </p>
+        <a
+         href="https://www.youtube.com/playlist?list={musicState.playlistId}"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="open-youtube-btn"
+        >
+         <IconBrandYoutube size={20} stroke={1.5} />
+         Open in YouTube App
+        </a>
+        <p class="tip-text">
+         💡 Tip: The playlist will continue in the background while you use this
+         app
+        </p>
+       </div>
+      {:else}
+       <div class="youtube-visualizer-placeholder">
+        <span>No playlist loaded</span>
+       </div>
+      {/if}
+     </div>
+    {:else}
+     <div class="youtube-visualizer-placeholder">
+      <span>Audio playing from YouTube iframe</span>
+     </div>
+    {/if}
    </div>
 
    <div class="sound-controls-row">
@@ -200,19 +246,23 @@
      <span class="volume-icon">
       <IconVolume size={16} stroke={1.5} />
      </span>
-     <input
-      type="range"
-      min="0"
-      max="1"
-      step="0.01"
-      value={musicState.youtubeVolume}
-      oninput={(e) =>
-       setYoutubeVolume(parseFloat((e.target as HTMLInputElement).value))}
-      class="volume-slider"
-     />
-     <span class="volume-value"
-      >{Math.round(musicState.youtubeVolume * 100)}%</span
-     >
+     {#if musicState.isMobile}
+      <span class="mobile-volume-notice"> Use device volume buttons </span>
+     {:else}
+      <input
+       type="range"
+       min="0"
+       max="1"
+       step="0.01"
+       value={musicState.youtubeVolume}
+       oninput={(e) =>
+        setYoutubeVolume(parseFloat((e.target as HTMLInputElement).value))}
+       class="volume-slider"
+      />
+      <span class="volume-value"
+       >{Math.round(musicState.youtubeVolume * 100)}%</span
+      >
+     {/if}
     </div>
    </div>
 
@@ -233,7 +283,7 @@
        <span class="playlist-label">Playlist ID:</span>
        <span class="playlist-id">{musicState.playlistId || "None"}</span>
       </div>
-      <button class="change-url-btn" onclick={handleEditUrl}>
+      <button type="button" class="change-url-btn" onclick={handleEditUrl}>
        Change Playlist
       </button>
      {/if}
@@ -262,6 +312,7 @@
       </span>
       <span class="sound-name">{sound.name}</span>
       <button
+       type="button"
        class="sound-toggle"
        class:playing={sound.playing}
        onclick={() => toggleSound(index)}
@@ -376,11 +427,20 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .stop-all-btn:hover {
   background: rgba(243, 139, 168, 0.3);
   box-shadow: 0 0 10px rgba(243, 139, 168, 0.5);
+ }
+
+ .stop-all-btn:active {
+  transform: scale(0.98);
+  opacity: 0.8;
  }
 
  .presets-grid {
@@ -400,6 +460,10 @@
   cursor: pointer;
   transition: all 0.3s;
   text-align: left;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .preset-btn:hover {
@@ -407,6 +471,11 @@
   border-color: rgba(203, 166, 247, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(203, 166, 247, 0.3);
+ }
+
+ .preset-btn:active {
+  transform: translateY(0);
+  opacity: 0.8;
  }
 
  .preset-icon {
@@ -496,10 +565,18 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .expand-toggle:hover {
   background: rgba(203, 166, 247, 0.2);
+ }
+
+ .expand-toggle:active {
+  transform: scale(0.95);
+  opacity: 0.8;
  }
 
  .sound-icon {
@@ -534,6 +611,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .sound-toggle:disabled {
@@ -543,6 +625,11 @@
 
  .sound-toggle:hover:not(:disabled) {
   background: rgba(203, 166, 247, 0.3);
+ }
+
+ .sound-toggle:active:not(:disabled) {
+  transform: scale(0.95);
+  opacity: 0.8;
  }
 
  .sound-toggle.playing {
@@ -568,6 +655,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .youtube-skip-btn:disabled {
@@ -578,6 +670,11 @@
  .youtube-skip-btn:hover:not(:disabled) {
   background: rgba(255, 0, 0, 0.25);
   box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+ }
+
+ .youtube-skip-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  opacity: 0.8;
  }
 
  .sound-visualizer-container {
@@ -598,6 +695,88 @@
   font-size: 11px;
   color: #bac2de;
   font-style: italic;
+ }
+
+ .youtube-mobile-fallback {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+ }
+
+ .mobile-youtube-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 24px;
+  background: linear-gradient(
+   135deg,
+   rgba(255, 0, 0, 0.1),
+   rgba(203, 166, 247, 0.1)
+  );
+  border: 2px solid rgba(255, 0, 0, 0.3);
+  border-radius: 16px;
+  max-width: 400px;
+  text-align: center;
+  color: #ff0000;
+ }
+
+ .message-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6666;
+  margin: 0;
+ }
+
+ .message-text {
+  font-size: 14px;
+  color: #cdd6f4;
+  margin: 0;
+  line-height: 1.6;
+ }
+
+ .open-youtube-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(255, 0, 0, 0.3);
+  min-height: 48px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+ }
+
+ .open-youtube-btn:hover {
+  background: linear-gradient(135deg, #ff3333, #ff0000);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+ }
+
+ .open-youtube-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+ }
+
+ .tip-text {
+  font-size: 12px;
+  color: #f9e2af;
+  font-style: italic;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(249, 226, 175, 0.1);
+  border: 1px solid rgba(249, 226, 175, 0.3);
+  border-radius: 8px;
  }
 
  .sound-controls-row {
@@ -656,6 +835,18 @@
   color: #cba6f7;
   min-width: 40px;
   text-align: right;
+ }
+
+ .mobile-volume-notice {
+  flex: 1;
+  font-size: 12px;
+  color: #f9e2af;
+  font-style: italic;
+  text-align: center;
+  padding: 8px;
+  background: rgba(249, 226, 175, 0.1);
+  border: 1px solid rgba(249, 226, 175, 0.3);
+  border-radius: 6px;
  }
 
  .youtube-url-section {
@@ -724,11 +915,20 @@
   cursor: pointer;
   transition: all 0.2s;
   width: 100%;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
  }
 
  .change-url-btn:hover {
   background: rgba(255, 0, 0, 0.3);
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+ }
+
+ .change-url-btn:active {
+  transform: scale(0.98);
+  opacity: 0.8;
  }
 
  .music-player::-webkit-scrollbar {
@@ -746,5 +946,21 @@
 
  .music-player::-webkit-scrollbar-thumb:hover {
   background: rgba(203, 166, 247, 0.5);
+ }
+
+ /* Mobile Responsive */
+ @media (max-width: 768px) {
+  .sound-header {
+   flex-wrap: wrap;
+  }
+
+  .mobile-youtube-message {
+   padding: 24px 16px;
+  }
+
+  .open-youtube-btn {
+   width: 100%;
+   justify-content: center;
+  }
  }
 </style>

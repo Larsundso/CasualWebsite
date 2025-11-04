@@ -110,7 +110,7 @@ interface SteamConnection extends GenericConnection {
  };
 }
 
-export interface Connection extends GenericConnection, SteamConnection {}
+export interface Connection extends GenericConnection, SteamConnection { }
 
 export interface SupplementalGame {
  application_id: string;
@@ -189,4 +189,17 @@ export interface Application {
  };
  approximate_guild_count: 4;
  approximate_user_install_count: 0;
+}
+
+export interface ExtendedGuild {
+ id: string;
+ name: string;
+ description: string;
+ vanity_url_code: string | null;
+ premium_tier: number;
+ premium_subscription_count: number;
+ profile: {
+  tag: string;
+  badge: string; // https://cdn.discordapp.com/clan-badges/<id>/<badge>.png?size=4096
+ } | null;
 }

@@ -280,6 +280,7 @@
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   background: linear-gradient(
    135deg,
    rgba(137, 180, 250, 0.05),
@@ -716,5 +717,107 @@
  .games-window::-webkit-scrollbar-thumb:hover,
  .detail-content::-webkit-scrollbar-thumb:hover {
   background: rgba(137, 180, 250, 0.5);
+ }
+
+ /* Mobile Responsive */
+ @media (max-width: 768px) {
+  .games-list-view {
+   padding: 12px;
+  }
+
+  .main-title {
+   font-size: 22px;
+   margin-bottom: 20px;
+  }
+
+  .games-grid {
+   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+   gap: 12px;
+  }
+
+  .game-cover {
+   height: 180px;
+  }
+
+  .detail-content {
+   padding: 16px;
+   overflow-x: hidden;
+  }
+
+  .detail-header {
+   flex-direction: column;
+   gap: 16px;
+   align-items: center;
+  }
+
+  .detail-cover {
+   width: 100%;
+   max-width: 280px;
+   height: auto;
+   aspect-ratio: 3 / 4;
+  }
+
+  .detail-header-info {
+   width: 100%;
+  }
+
+  .detail-title {
+   font-size: 24px;
+   word-wrap: break-word;
+   overflow-wrap: break-word;
+  }
+
+  .metadata-grid {
+   padding: 12px;
+  }
+
+  .metadata-value {
+   font-size: 12px;
+   word-wrap: break-word;
+   overflow-wrap: break-word;
+  }
+
+  .steam-link {
+   width: 100%;
+   justify-content: center;
+  }
+
+  .detail-section {
+   padding: 16px;
+   margin-bottom: 20px;
+  }
+
+  .game-summary {
+   font-size: 13px;
+  }
+
+  .info-columns {
+   grid-template-columns: 1fr;
+   gap: 16px;
+  }
+
+  .screenshots-grid {
+   grid-template-columns: 1fr;
+   gap: 12px;
+  }
+
+  .screenshot {
+   height: 180px;
+  }
+
+  .artwork-grid {
+   grid-template-columns: 1fr;
+   gap: 12px;
+  }
+
+  .artwork {
+   height: 140px;
+  }
+
+  .website-link {
+   font-size: 12px;
+   padding: 8px 12px;
+   max-width: 100%;
+  }
  }
 </style>

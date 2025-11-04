@@ -3,6 +3,23 @@
  * Manages ambient sounds with Web Audio API, visualizers, and presets
  */
 
+/**
+ * Detect if the device is a mobile device (iOS or Android)
+ * Mobile browsers have restrictions on video volume control and autoplay
+ */
+function isMobileDevice(): boolean {
+ if (typeof window === 'undefined') return false;
+
+ const userAgent = window.navigator.userAgent.toLowerCase();
+ const isIOS = /iphone|ipad|ipod/.test(userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPad on iOS 13+
+ const isAndroid = /android/.test(userAgent);
+
+ return isIOS || isAndroid;
+}
+
+export const isMobile = $state(isMobileDevice());
+
 export interface Sound {
  id: number;
  name: string;
@@ -30,7 +47,7 @@ function getDefaultSounds(): Sound[] {
   { id: 1, name: "Rain", icon: "cloud-rain", playing: false, volume: 0.5 },
   {
    id: 2,
-   name: "AC Noise",
+   name: "Air Conditioner",
    icon: "air-conditioning",
    playing: false,
    volume: 0.5,
@@ -158,7 +175,8 @@ const persistedYoutubeState = loadPersistedYoutubeState();
 
 let youtubeUrl = $state(persistedYoutubeState.url);
 let youtubePlayer: any = $state(null);
-let youtubePlayerId = "persistent-youtube-player";
+// Use different player IDs for mobile vs desktop
+let youtubePlayerId = $derived(isMobile ? "mobile-youtube-player" : "persistent-youtube-player");
 let isYoutubePlayerReady = $state(false);
 let youtubeVolume = $state(persistedYoutubeState.volume);
 let hasSkippedFirstVideo = false;
@@ -166,7 +184,7 @@ let shouldRestoreYoutubePlaying = persistedYoutubeState.playing;
 
 const soundColors = [
  "#89b4fa", // Rain - Blue
- "#94e2d5", // AC Noise - Teal
+ "#94e2d5", // Air Conditioner - Teal
  "#f9e2af", // Cafe - Yellow
  "#f38ba8", // City Traffic - Red
  "#cba6f7", // White Noise - Purple
@@ -413,6 +431,12 @@ function initMasterAudioContext() {
   masterGain.connect(masterAnalyser);
   masterAnalyser.connect(masterAudioContext.destination);
  }
+
+ if (isMobile && masterAudioContext.state === 'suspended') {
+  masterAudioContext.resume().catch((err) => {
+   console.warn('Failed to resume AudioContext on mobile:', err);
+  });
+ }
 }
 
 /**
@@ -452,20 +476,31 @@ function createPlayer() {
   return;
  }
 
- youtubePlayer = new (window as any).YT.Player(youtubePlayerId, {
+ const playerConfig: any = {
   height: "100%",
   width: "100%",
   playerVars: {
    listType: "playlist",
    list: playlistId,
-   autoplay: 1,
+   autoplay: 0,
    enablejsapi: 1,
+   playsinline: 1,
+   controls: 1,
+   modestbranding: 1,
+   rel: 0,
+   origin: window.location.origin,
+   widget_referrer: window.location.origin,
   },
   events: {
    onReady: onPlayerReady,
    onStateChange: onPlayerStateChange,
   },
- });
+ };
+
+ if (isMobile) playerConfig.host = 'https://www.youtube-nocookie.com';
+
+ console.log('Creating YouTube player with config:', playerConfig, 'for element:', youtubePlayerId);
+ youtubePlayer = new (window as any).YT.Player(youtubePlayerId, playerConfig);
 }
 
 /**
@@ -489,7 +524,7 @@ function onPlayerStateChange(event: any) {
 function onPlayerReady(event: any) {
  isYoutubePlayerReady = true;
 
- if (youtubePlayer && youtubePlayer.setVolume) {
+ if (youtubePlayer && youtubePlayer.setVolume && !isMobile) {
   youtubePlayer.setVolume(youtubeVolume * 100);
  }
 
@@ -499,7 +534,7 @@ function onPlayerReady(event: any) {
     youtubePlayer.setShuffle(true);
    }
 
-   if (shouldRestoreYoutubePlaying) {
+   if (shouldRestoreYoutubePlaying && !isMobile) {
     youtubePlayer.playVideo();
     shouldRestoreYoutubePlaying = false;
    } else {
@@ -544,12 +579,12 @@ export function previousYoutubeVideo() {
 
 /**
  * Set YouTube volume
+ * Note: On mobile devices, volume control is disabled - users must use device volume buttons
  */
 export function setYoutubeVolume(volume: number) {
  youtubeVolume = volume;
- if (youtubePlayer && youtubePlayer.setVolume) {
-  youtubePlayer.setVolume(volume * 100);
- }
+ if (youtubePlayer && youtubePlayer.setVolume && !isMobile) youtubePlayer.setVolume(volume * 100);
+
  saveYoutubeState();
 }
 
@@ -765,6 +800,9 @@ export const musicState = {
  },
  get playingSoundsWithAnalysers() {
   return playingSoundsWithAnalysers;
+ },
+ get isMobile() {
+  return isMobile;
  },
  set youtubeUrl(url: string) {
   youtubeUrl = url;

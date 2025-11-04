@@ -14,6 +14,8 @@
   handleMouseUp,
  } from "$lib/stores/windowStore.svelte";
 
+ let isMobile = $state(false);
+
  import Terminal from "$lib/components/windows/Terminal.svelte";
  import MusicPlayer from "$lib/components/windows/MusicPlayer.svelte";
  import ProfileWindow from "$lib/components/windows/ProfileWindow.svelte";
@@ -68,15 +70,49 @@
  }
 
  onMount(() => {
+  isMobile = window.innerWidth <= 768;
+
+  const handleResize = () => {
+   isMobile = window.innerWidth <= 768;
+  };
+
+  window.addEventListener("resize", handleResize);
+
   const handleMove = (e: MouseEvent) => handleMouseMove(e);
   const handleUp = () => handleMouseUp();
 
   window.addEventListener("mousemove", handleMove);
   window.addEventListener("mouseup", handleUp);
 
+  // Add touch event handlers for mobile
+  const handleTouchMove = (e: TouchEvent) => {
+   if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    const mouseEvent = new MouseEvent("mousemove", {
+     clientX: touch.clientX,
+     clientY: touch.clientY,
+     bubbles: true,
+     cancelable: true,
+    });
+    handleMouseMove(mouseEvent);
+   }
+  };
+
+  const handleTouchEnd = () => {
+   handleMouseUp();
+  };
+
+  window.addEventListener("touchmove", handleTouchMove, { passive: false });
+  window.addEventListener("touchend", handleTouchEnd);
+  window.addEventListener("touchcancel", handleTouchEnd);
+
   return () => {
+   window.removeEventListener("resize", handleResize);
    window.removeEventListener("mousemove", handleMove);
    window.removeEventListener("mouseup", handleUp);
+   window.removeEventListener("touchmove", handleTouchMove);
+   window.removeEventListener("touchend", handleTouchEnd);
+   window.removeEventListener("touchcancel", handleTouchEnd);
   };
  });
 </script>
@@ -101,14 +137,14 @@
 				z-index: {window.zIndex};
 			"
    transition:scale={{ duration: 200, easing: quintOut }}
-   onmousedown={() => bringToFront(window)}
+   onmousedown={!isMobile ? () => bringToFront(window) : undefined}
   >
    <!-- Titlebar -->
    <div
     class="titlebar"
     role="button"
     tabindex="0"
-    onmousedown={(e) => startDrag(e, window)}
+    onmousedown={!isMobile ? (e) => startDrag(e, window) : undefined}
    >
     <div class="window-title">
      <span class="window-icon">
@@ -159,56 +195,56 @@
      role="button"
      tabindex="-1"
      aria-label="Resize north"
-     onmousedown={(e) => startResize(e, window, "n")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "n") : undefined}
     ></div>
     <div
      class="resize-handle s"
      role="button"
      tabindex="-1"
      aria-label="Resize south"
-     onmousedown={(e) => startResize(e, window, "s")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "s") : undefined}
     ></div>
     <div
      class="resize-handle e"
      role="button"
      tabindex="-1"
      aria-label="Resize east"
-     onmousedown={(e) => startResize(e, window, "e")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "e") : undefined}
     ></div>
     <div
      class="resize-handle w"
      role="button"
      tabindex="-1"
      aria-label="Resize west"
-     onmousedown={(e) => startResize(e, window, "w")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "w") : undefined}
     ></div>
     <div
      class="resize-handle ne"
      role="button"
      tabindex="-1"
      aria-label="Resize northeast"
-     onmousedown={(e) => startResize(e, window, "ne")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "ne") : undefined}
     ></div>
     <div
      class="resize-handle nw"
      role="button"
      tabindex="-1"
      aria-label="Resize northwest"
-     onmousedown={(e) => startResize(e, window, "nw")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "nw") : undefined}
     ></div>
     <div
      class="resize-handle se"
      role="button"
      tabindex="-1"
      aria-label="Resize southeast"
-     onmousedown={(e) => startResize(e, window, "se")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "se") : undefined}
     ></div>
     <div
      class="resize-handle sw"
      role="button"
      tabindex="-1"
      aria-label="Resize southwest"
-     onmousedown={(e) => startResize(e, window, "sw")}
+     onmousedown={!isMobile ? (e) => startResize(e, window, "sw") : undefined}
     ></div>
    {/if}
   </div>
@@ -236,7 +272,9 @@
   display: flex;
   flex-direction: column;
   pointer-events: auto;
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+   box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+   border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
  }
 
  .window.dragging {

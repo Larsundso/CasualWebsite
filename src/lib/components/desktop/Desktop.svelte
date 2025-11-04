@@ -30,7 +30,9 @@
    setTimeout(() => {
     openWindow("music", "Music Player", "music");
 
-    setTimeout(() => initYouTubePlayer(), 100);
+    if (!musicState.isMobile) {
+     setTimeout(() => initYouTubePlayer(), 100);
+    }
    }, 500);
   }
 
@@ -67,10 +69,11 @@
   <!-- Window Manager -->
   <WindowManager />
 
-  <!-- Persistent YouTube Player Container (hidden, audio only) -->
-  <div class="persistent-youtube-container">
-   <div id={musicState.youtubePlayerId} class="youtube-player-frame"></div>
-  </div>
+  {#if !musicState.isMobile}
+   <div class="persistent-youtube-container">
+    <div id={musicState.youtubePlayerId} class="youtube-player-frame"></div>
+   </div>
+  {/if}
  </div>
 {/if}
 
