@@ -129,7 +129,7 @@
 
  <div class="settings-info">
   <p>System Version: Arch Linux 6.6.10-arch1-1 | Windowland Compositor</p>
-  <p style="margin-top: 8px; opacity: 0.7;">Built with SvelteKit + Svelte 5</p>
+  <p style="margin-top: 8px; opacity: 0.7;">Built with Astro + Svelte 5</p>
  </div>
 </div>
 
