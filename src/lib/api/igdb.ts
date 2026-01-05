@@ -3,8 +3,7 @@
  * Fetches rich game data from Internet Game Database
  */
 
-const IGDB_CLIENT_ID = "pnkp3u8fogsxj7txb1hkg066d0i3jv";
-const IGDB_CLIENT_SECRET = "zj2ymfgycskspo2ua6dzuiiqe0kukv";
+import { IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } from "astro:env/server";
 
 // Cache for access token
 let cachedToken: { token: string; expiresAt: number } | null = null;

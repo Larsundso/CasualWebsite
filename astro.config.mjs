@@ -22,6 +22,14 @@ export default defineConfig({
     context: "server",
     access: "secret",
    }),
+   IGDB_CLIENT_ID: envField.string({
+    context: "server",
+    access: "secret",
+   }),
+   IGDB_CLIENT_SECRET: envField.string({
+    context: "server",
+    access: "secret",
+   }),
   },
  },
  vite: {
