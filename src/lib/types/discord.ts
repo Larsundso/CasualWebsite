@@ -112,21 +112,135 @@ interface SteamConnection extends GenericConnection {
 
 export interface Connection extends GenericConnection, SteamConnection { }
 
-export interface SupplementalGame {
- application_id: string;
+// Discord Application data (from Discord API)
+export interface DiscordGameApp {
+ id: string;
  name: string;
+ icon: string;
+ description: string;
  summary: string;
- cover_image_url: string;
- artwork_urls: string[];
- screenshot_urls: string[];
- themes: (keyof typeof Themes)[];
- platforms: (keyof typeof Platforms)[];
- genres: (keyof typeof Genres)[];
- first_release_date: string; // ISO date
- websites: { url: string; category: keyof typeof WebsiteCategories }[];
- publisher_names: string[];
- developer_name: string[];
- steam_id: string;
+ type: number;
+ is_monetized: boolean;
+ is_verified: boolean;
+ is_discoverable: boolean;
+ cover_image?: string;
+ splash?: string;
+ third_party_skus?: ThirdPartySku[];
+ overlay?: boolean;
+ hook: boolean;
+ guild_id?: string;
+ aliases?: string[];
+ executables?: GameExecutable[];
+ storefront_available: boolean;
+ integration_types_config: Record<string, object>;
+ verify_key: string;
+ flags: number;
+ bot?: ApplicationBot;
+ bot_public?: boolean;
+ bot_require_code_grant?: boolean;
+}
+
+// IGDB rich game data
+export interface IGDBGameData {
+ id: number;
+ name: string;
+ slug: string;
+ summary?: string;
+ storyline?: string;
+ first_release_date?: number; // Unix timestamp
+ rating?: number; // 0-100
+ aggregated_rating?: number; // 0-100
+ total_rating?: number; // 0-100
+ rating_count?: number;
+ cover?: {
+  image_id: string;
+  width: number;
+  height: number;
+ };
+ artworks?: {
+  image_id: string;
+  width: number;
+  height: number;
+ }[];
+ screenshots?: {
+  image_id: string;
+  width: number;
+  height: number;
+ }[];
+ genres?: {
+  id: number;
+  name: string;
+  slug: string;
+ }[];
+ platforms?: {
+  id: number;
+  name: string;
+  abbreviation?: string;
+  slug: string;
+ }[];
+ themes?: {
+  id: number;
+  name: string;
+  slug: string;
+ }[];
+ game_modes?: {
+  id: number;
+  name: string;
+  slug: string;
+ }[];
+ involved_companies?: {
+  company: {
+   id: number;
+   name: string;
+   slug: string;
+  };
+  developer: boolean;
+  publisher: boolean;
+ }[];
+ websites?: {
+  category: number;
+  url: string;
+ }[];
+ videos?: {
+  video_id: string; // YouTube video ID
+  name: string;
+ }[];
+ url?: string;
+}
+
+// Combined game data: Discord app info + IGDB rich data
+export interface SupplementalGame extends DiscordGameApp {
+ igdb?: IGDBGameData;
+}
+
+interface ThirdPartySku {
+ id: string;
+ sku: string;
+ distributor: string;
+}
+
+interface GameExecutable {
+ os: string;
+ name: string;
+ is_launcher: boolean;
+}
+
+interface ApplicationBot {
+ id: string;
+ username: string;
+ global_name: string | null;
+ avatar: string | null;
+ avatar_decoration_data: unknown;
+ collectibles: unknown;
+ discriminator: string;
+ display_name_styles: unknown;
+ public_flags: number;
+ primary_guild: unknown;
+ clan: unknown;
+ bot: boolean;
+ banner: string | null;
+ banner_color: string | null;
+ accent_color: number | null;
 }
 
 export const Genres = {

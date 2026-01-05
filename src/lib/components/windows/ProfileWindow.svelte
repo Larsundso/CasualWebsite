@@ -2,7 +2,7 @@
 
 <script lang="ts">
  import { userStore } from "$lib/stores/userStore.svelte";
- import { PremiumType, Genres } from "$lib/types/discord";
+ import { PremiumType, GameDataType, type SupplementalGame } from "$lib/types/discord";
  import IconBrandSteam from "@tabler/icons-svelte/icons/brand-steam";
  import IconBrandYoutube from "@tabler/icons-svelte/icons/brand-youtube";
  import IconBrandTwitch from "@tabler/icons-svelte/icons/brand-twitch";
@@ -101,8 +101,20 @@
   return urlBuilder ? urlBuilder(name) : null;
  };
 
- const getGameCoverUrl = (coverUrl: string) => {
-  return coverUrl || "https://via.placeholder.com/90x120?text=No+Image";
+ const getGameCoverUrl = (game: SupplementalGame): string => {
+  // Prefer IGDB cover
+  if (game.igdb?.cover?.image_id) {
+   return `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.igdb.cover.image_id}.jpg`;
+  }
+  // Fallback to Discord cover
+  if (game.cover_image) {
+   return `https://cdn.discordapp.com/app-assets/${game.id}/${game.cover_image}.webp?size=256`;
+  }
+  // Fallback to Discord icon
+  if (game.icon) {
+   return `https://cdn.discordapp.com/app-icons/${game.id}/${game.icon}.webp?size=256`;
+  }
+  return "https://via.placeholder.com/90x120?text=No+Image";
  };
 </script>
 
@@ -224,24 +236,20 @@
      {@const widgetGames = widget.data.games
       .map((g) => ({
        ...g,
-       details: userData.games.supplemental_game_data.find(
-        (sg) => sg.application_id === g.game_id
-       ),
+       details: userData.games.find((sg) => sg.id === g.game_id)
       }))
       .filter((g) => g.details)}
 
      {#if widgetGames.length > 0}
       <div class="profile-section">
-       <h3>{widget.data.type}</h3>
+       <h3>{GameDataType[widget.data.type as never]}</h3>
        <div class="games-grid">
         {#each widgetGames as game (game.game_id)}
          {#if game.details}
           <div class="game-card">
            <div
             class="game-cover"
-            style="background-image: url({getGameCoverUrl(
-             game.details.cover_image_url
-            )})"
+            style:background-image="url('{getGameCoverUrl(game.details)}')"
            ></div>
            <div class="game-details">
             <strong>{game.details.name}</strong>
@@ -255,10 +263,10 @@
               {/each}
              </div>
             {/if}
-            {#if game.details.genres.length > 0}
+            {#if game.details.igdb?.genres?.length}
              <div class="game-genres">
-              {#each game.details.genres as genre (genre)}
-               <span class="genre-tag">{Genres[genre] || "Unknown"}</span>
+              {#each game.details.igdb.genres as genre (genre.id)}
+               <span class="genre-tag">{genre.name}</span>
               {/each}
              </div>
             {/if}
