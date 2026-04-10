@@ -34,10 +34,167 @@
  const shutdownMessagesFromStore = $derived(importedBootState.shutdownMessages);
  const shutdownProgressFromStore = $derived(importedBootState.shutdownProgress);
 
- function getBootSequence(): string[] {
+ /**
+  * Seeded PRNG for deterministic-per-session randomness.
+  * We use a simple LCG so that within one boot, if a message mentions
+  * "device 0xABCD", the same device shows up in related messages later.
+  * Re-seeding between boots gives you fresh surprises each visit.
+  */
+ function createRng(seed: number) {
+  let state = seed;
+  return () => {
+   state = (state * 1664525 + 1013904223) >>> 0;
+   return state / 0xffffffff;
+  };
+ }
+
+ const rng = createRng(Date.now());
+
+ /** Pick a random element from an array using our seeded RNG */
+ function pick<T>(arr: T[]): T {
+  return arr[Math.floor(rng() * arr.length)];
+ }
+
+ /** Generate a fake hex device ID for authentic kernel-log flavor */
+ function fakeHexId(digits: number): string {
+  let out = "0x";
+  for (let i = 0; i < digits; i++) out += Math.floor(rng() * 16).toString(16);
+  return out.toUpperCase();
+ }
+
+ /**
+  * Detect GPU vendor from the detected GPU string and return vendor-specific
+  * driver messages. This is what makes boot feel "real" — an NVIDIA user sees
+  * `nvidia` module loading, an AMD user sees `amdgpu`, an Intel user sees `i915`.
+  */
+ function getGpuVendorMessages(gpu: string): string[] {
+  const gpuLower = gpu.toLowerCase();
+  if (gpuLower.includes("nvidia") || gpuLower.includes("geforce") || gpuLower.includes("rtx") || gpuLower.includes("gtx")) {
+   return [
+    `[  0.612${Math.floor(rng() * 900) + 100}] nvidia: loading out-of-tree module taints kernel`,
+    `[  0.623${Math.floor(rng() * 900) + 100}] nvidia: module license 'NVIDIA' taints kernel`,
+    `[  0.634${Math.floor(rng() * 900) + 100}] nvidia-modeset: Loading NVIDIA Kernel Mode Setting Driver for UNIX platforms 545.29.06`,
+    `[  0.645${Math.floor(rng() * 900) + 100}] [drm] [nvidia-drm] [GPU ID ${fakeHexId(4)}] Loading driver`,
+   ];
+  }
+  if (gpuLower.includes("amd") || gpuLower.includes("radeon") || gpuLower.includes("rx ")) {
+   return [
+    `[  0.612${Math.floor(rng() * 900) + 100}] amdgpu: CRAT table disabled by module option`,
+    `[  0.623${Math.floor(rng() * 900) + 100}] amdgpu: Virtual CRAT table created for CPU`,
+    `[  0.634${Math.floor(rng() * 900) + 100}] amdgpu: Topology: Add CPU node`,
+    `[  0.645${Math.floor(rng() * 900) + 100}] [drm] amdgpu kernel modesetting enabled.`,
+   ];
+  }
+  if (gpuLower.includes("intel") || gpuLower.includes("iris") || gpuLower.includes("hd graphics") || gpuLower.includes("uhd")) {
+   return [
+    `[  0.612${Math.floor(rng() * 900) + 100}] i915 0000:00:02.0: [drm] Found ${gpu.split(" ").slice(-2).join(" ")}`,
+    `[  0.623${Math.floor(rng() * 900) + 100}] i915 0000:00:02.0: vgaarb: deactivate vga console`,
+    `[  0.634${Math.floor(rng() * 900) + 100}] i915 0000:00:02.0: [drm] Using Transparent Hugepages`,
+   ];
+  }
+  if (gpuLower.includes("apple")) {
+   return [
+    `[  0.612${Math.floor(rng() * 900) + 100}] apple-dcp: Display Coprocessor initializing`,
+    `[  0.623${Math.floor(rng() * 900) + 100}] apple-dcp: Firmware version 13.5`,
+    `[  0.634${Math.floor(rng() * 900) + 100}] [drm] apple-drm: Display pipeline ready`,
+   ];
+  }
   return [
+   `[  0.612${Math.floor(rng() * 900) + 100}] drm: Loading generic DRM driver for ${gpu}`,
+   `[  0.623${Math.floor(rng() * 900) + 100}] drm: [GPU ID ${fakeHexId(4)}] Driver loaded`,
+  ];
+ }
+
+ /**
+  * ╔════════════════════════════════════════════════════════════════════╗
+  * ║ USER CONTRIBUTION ZONE                                             ║
+  * ╠════════════════════════════════════════════════════════════════════╣
+  * ║ Add 5–10 hardware-aware boot messages that match the vibe you      ║
+  * ║ want. These will be randomly interleaved into the boot sequence.   ║
+  * ║                                                                    ║
+  * ║ Available hardware data (hw parameter):                            ║
+  * ║   hw.cpu        — "Intel Core Processor" / "AMD Ryzen..." / etc   ║
+  * ║   hw.cores      — number of CPU cores (e.g. 16)                    ║
+  * ║   hw.ram        — gigabytes of RAM (e.g. 32)                       ║
+  * ║   hw.gpu        — raw GPU string from WebGL                        ║
+  * ║   hw.platform   — "Win32" / "MacIntel" / "Linux x86_64"            ║
+  * ║   hw.resolution — e.g. "2560x1440"                                 ║
+  * ║                                                                    ║
+  * ║ Helpers you can use:                                               ║
+  * ║   pick([a, b, c])     — random element from array                  ║
+  * ║   fakeHexId(4)        — generates "0xA3F2" style IDs               ║
+  * ║   rng()               — random 0..1 (seeded per session)           ║
+  * ║                                                                    ║
+  * ║ Trade-offs to consider:                                            ║
+  * ║   • Authentic kernel-log style (dmesg) vs. humor/personality       ║
+  * ║   • Subtle (one-liner flavor) vs. loud (multi-line dramatic)       ║
+  * ║   • Per-vendor branches (AMD joke vs. Intel joke) vs. universal    ║
+  * ║                                                                    ║
+  * ║ Examples of good messages:                                         ║
+  * ║   `[  0.342${Math.floor(rng() * 900)}] pci ${fakeHexId(4)}: quirk_usb_handoff_xhci+0x0/0x1e0`
+  * ║   `[  0.512345] lolo: ${pick(["caffeine levels nominal", "coffee.service started"])}`
+  * ║   `[  1.023456] ${hw.cores > 8 ? "overclock: boost enabled" : "thermal: nominal"}`
+  * ║                                                                    ║
+  * ║ Keep each message short (one line) for the best scrolling effect.  ║
+  * ╚════════════════════════════════════════════════════════════════════╝
+  */
+ function getUserCustomBootMessages(hw: HardwareInfo): string[] {
+  const messages: string[] = [];
+
+  // TODO: Add your 5–10 custom hardware-aware boot messages here.
+  // Replace the example below with your own flavor.
+  messages.push(
+   `[  0.456${Math.floor(rng() * 900)}] lolo: portfolio.service started successfully`
+  );
+
+  return messages;
+ }
+
+ /**
+  * Weave a pool of extra messages randomly into an existing sequence,
+  * preserving the structural "▰▰▰▰ 25% STAGE NAME" progress markers.
+  */
+ function interleaveMessages(base: string[], extras: string[]): string[] {
+  const result = [...base];
+  const safeInsertIndices: number[] = [];
+
+  // Only insert after "normal" kernel log lines — never between progress bars
+  for (let i = 0; i < result.length; i++) {
+   const line = result[i];
+   if (line.startsWith("[") && !line.includes("▰")) {
+    safeInsertIndices.push(i + 1);
+   }
+  }
+
+  // Shuffle extras with our seeded RNG
+  const shuffled = [...extras];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+   const j = Math.floor(rng() * (i + 1));
+   [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Insert each extra at a random safe index (work backwards to preserve indices)
+  const insertions: { idx: number; msg: string }[] = [];
+  for (const msg of shuffled) {
+   if (safeInsertIndices.length === 0) break;
+   const slotIdx = Math.floor(rng() * safeInsertIndices.length);
+   insertions.push({ idx: safeInsertIndices[slotIdx], msg });
+  }
+  insertions
+   .sort((a, b) => b.idx - a.idx)
+   .forEach(({ idx, msg }) => result.splice(idx, 0, msg));
+
+  return result;
+ }
+
+ function getBootSequence(): string[] {
+  const vendorMessages = getGpuVendorMessages(hardware.gpu);
+  const userMessages = getUserCustomBootMessages(hardware);
+  const allExtras = [...vendorMessages, ...userMessages];
+
+  const baseSequence = [
    "ARCH//LINUX KERNEL v6.6.10 INITIALIZING...",
-   "BIOS: 0x0000F000 - 0x0000FFFF | UEFI v2.70",
+   `BIOS: ${fakeHexId(4)} - ${fakeHexId(4)} | UEFI v2.70`,
    `CPU: ${hardware.cpu} | Cores: ${hardware.cores} Threads`,
    `Memory: 0x00000000 - 0x${(hardware.ram * 1024).toString(16).toUpperCase().padStart(8, "0")} | Total: ${hardware.ram * 1024} MB DDR4`,
    `Platform: ${hardware.platform} | Display: ${hardware.resolution}`,
@@ -111,6 +268,8 @@
    "[ ✓ ] ALL SERVICES OPERATIONAL",
    "[ ✓ ] LAUNCHING GRAPHICAL INTERFACE...",
   ];
+
+  return interleaveMessages(baseSequence, allExtras);
  }
 
  onMount(() => {
