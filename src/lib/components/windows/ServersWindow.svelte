@@ -160,7 +160,7 @@
          <div class="premium-tier">
           <IconSparkles size={14} stroke={1.5} />
           <span>{getPremiumTierLabel(guild.premium_tier)}</span>
-          <IconStar size={14} stroke={1.5} class="star-icon" />
+          <span class="star-icon"><IconStar size={14} stroke={1.5} /></span>
          </div>
          <div class="boost-info">
           <div class="boost-bar-container">
@@ -488,6 +488,7 @@
 
  .premium-tier .star-icon {
   color: #f9e2af;
+  display: inline-flex;
  }
 
  .boost-info {
