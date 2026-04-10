@@ -8,6 +8,38 @@
   openWindow,
   switchWorkspace
  } from "$lib/stores/windowStore.svelte";
+
+ const openWindowIds = $derived(
+  new Set(windowState.windows.map((w) => w.id))
+ );
+
+ /**
+  * Global tooltip state. We render tooltips OUTSIDE the .sidebar-apps container
+  * (which has overflow clipping) using position: fixed — escaping all ancestor
+  * overflow containers. On hover we capture the button's viewport rect and
+  * position the tooltip relative to it.
+  */
+ let hoveredApp = $state<{
+  label: string;
+  color: string;
+  x: number;
+  y: number;
+ } | null>(null);
+
+ function showTooltip(label: string, color: string, event: MouseEvent) {
+  const btn = event.currentTarget as HTMLElement;
+  const rect = btn.getBoundingClientRect();
+  hoveredApp = {
+   label,
+   color,
+   x: rect.right + 14,
+   y: rect.top + rect.height / 2,
+  };
+ }
+
+ function hideTooltip() {
+  hoveredApp = null;
+ }
  import { startShutdown } from "$lib/stores/bootStore.svelte";
  import { detectHardware } from "$lib/utils/hardware-detector";
  import IconCpu from "@tabler/icons-svelte/icons/cpu";
@@ -73,15 +105,24 @@
  <div class="sidebar-apps">
   {#each sidebarApps as app (app.id)}
    {@const Icon = getAppIcon(app.icon)}
+   {@const isOpen = openWindowIds.has(app.id)}
    <button
     class="sidebar-app"
+    class:is-open={isOpen}
     style="--app-color: {app.color}"
     onclick={() => handleAppClick(app.id)}
-    title={app.label}
+    onmouseenter={(e) => showTooltip(app.label, app.color, e)}
+    onmouseleave={hideTooltip}
+    onfocus={(e) =>
+     showTooltip(app.label, app.color, e as unknown as MouseEvent)}
+    onblur={hideTooltip}
+    data-sidebar-app-id={app.id}
+    aria-label={app.label}
    >
     <span class="app-icon">
      <Icon size={24} stroke={1.5} />
     </span>
+    <span class="app-indicator" aria-hidden="true"></span>
    </button>
   {/each}
  </div>
@@ -149,6 +190,21 @@
  </button>
 </aside>
 
+<!-- Global tooltip — position: fixed escapes all ancestor overflow containers -->
+{#if hoveredApp}
+ <div
+  class="global-tooltip"
+  style="
+   --app-color: {hoveredApp.color};
+   top: {hoveredApp.y}px;
+   left: {hoveredApp.x}px;
+  "
+  role="tooltip"
+ >
+  {hoveredApp.label}
+ </div>
+{/if}
+
 <style>
  .sidebar {
   position: fixed;
@@ -192,8 +248,14 @@
  .sidebar-apps {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
   flex: 1;
+  /* Stretch full sidebar width so 50px buttons have ~15px breathing room
+     on each side — scaled hover state (×1.15 → 57.5px) + glow stay within
+     the clip boundary. CSS won't let us have overflow-y: auto without
+     overflow-x clipping, so we create space instead of removing the clip. */
+  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
@@ -249,8 +311,10 @@
  }
 
  .sidebar-app:hover {
-  transform: scale(1.15);
-  box-shadow: 0 8px 25px rgba(var(--app-color), 0.4);
+  transform: scale(1.1);
+  box-shadow:
+   0 4px 12px rgba(var(--app-color), 0.45),
+   0 0 18px rgba(var(--app-color), 0.25);
  }
 
  .sidebar-app:hover::before {
@@ -264,6 +328,79 @@
   display: flex;
   align-items: center;
   justify-content: center;
+ }
+
+ /* Global tooltip — rendered OUTSIDE the clipped .sidebar-apps container.
+    Position: fixed escapes all ancestor overflow: hidden boundaries.
+    JS sets top/left to the hovered button's right-center point. */
+ :global(.global-tooltip) {
+  position: fixed;
+  transform: translate(-8px, -50%) scale(0.95);
+  padding: 7px 14px;
+  background: rgba(17, 17, 27, 0.95);
+  border: 1px solid rgba(var(--app-color), 0.5);
+  border-radius: 8px;
+  color: #cdd6f4;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow:
+   0 8px 24px rgba(0, 0, 0, 0.4),
+   0 0 20px rgba(var(--app-color), 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  animation: tooltip-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+ }
+
+ :global(.global-tooltip::before) {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: rgba(17, 17, 27, 0.95);
+  border-left: 1px solid rgba(var(--app-color), 0.5);
+  border-bottom: 1px solid rgba(var(--app-color), 0.5);
+ }
+
+ @keyframes tooltip-in {
+  to {
+   opacity: 1;
+   transform: translate(0, -50%) scale(1);
+  }
+ }
+
+ /* Open-window indicator — INSIDE the button at the left edge.
+    Must stay within button bounds because .sidebar-apps clips overflow-x. */
+ .app-indicator {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 4px;
+  background: rgb(var(--app-color));
+  box-shadow:
+   0 0 8px rgba(var(--app-color), 0.9),
+   0 0 14px rgba(var(--app-color), 0.4);
+  border-radius: 0 3px 3px 0;
+  transform: translateY(-50%) scaleY(0);
+  opacity: 0;
+  transition:
+   transform 0.32s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+   opacity 0.25s ease,
+   height 0.32s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 3;
+ }
+
+ .sidebar-app.is-open .app-indicator {
+  opacity: 1;
+  transform: translateY(-50%) scaleY(1);
+  height: 24px;
  }
 
  .sidebar-workspaces {
@@ -467,6 +604,27 @@
    width: 48px;
    height: 48px;
    flex-shrink: 0;
+  }
+
+  /* On mobile the sidebar is horizontal at the bottom — flip indicator to top */
+  .app-indicator {
+   left: 50%;
+   top: 0;
+   width: 4px;
+   height: 3px;
+   border-radius: 0 0 3px 3px;
+   transform: translateX(-50%) scaleX(0);
+  }
+
+  .sidebar-app.is-open .app-indicator {
+   transform: translateX(-50%) scaleX(1);
+   width: 20px;
+   height: 3px;
+  }
+
+  /* No hover state on mobile — don't show global tooltip */
+  :global(.global-tooltip) {
+   display: none;
   }
 
   .sidebar-workspaces {
