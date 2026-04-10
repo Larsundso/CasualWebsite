@@ -2,7 +2,7 @@
 
 <script lang="ts">
  import { userStore } from "$lib/stores/userStore.svelte";
- import { PremiumType, GameDataType, type SupplementalGame } from "$lib/types/discord";
+ import { PremiumType, GameDataType, GameTags, type SupplementalGame } from "$lib/types/discord";
  import IconBrandSteam from "@tabler/icons-svelte/icons/brand-steam";
  import IconBrandYoutube from "@tabler/icons-svelte/icons/brand-youtube";
  import IconBrandTwitch from "@tabler/icons-svelte/icons/brand-twitch";
@@ -259,7 +259,7 @@
             {#if game.tags.length > 0}
              <div class="game-tags">
               {#each game.tags as tag (tag)}
-               <span class="tag">{tag}</span>
+               <span class="tag">{GameTags[tag as never]}</span>
               {/each}
              </div>
             {/if}
