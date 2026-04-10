@@ -2,8 +2,50 @@
 
 <script lang="ts">
  import { fade, scale } from "svelte/transition";
- import { quintOut } from "svelte/easing";
+ import { quintOut, cubicOut } from "svelte/easing";
  import { onMount } from "svelte";
+
+ /**
+  * Custom transition: animates a window toward its corresponding sidebar icon.
+  * Used for BOTH close and minimize — the window shrinks + flies to its launcher.
+  *
+  * Uses the FLIP technique: we capture the target sidebar icon's position once
+  * at transition start, compute the delta from the window's current center,
+  * then interpolate transform + opacity frame-by-frame via the `css` callback.
+  * Svelte compiles this into a native keyframe animation on the GPU.
+  */
+ function flyToSidebar(
+  node: HTMLElement,
+  { appId, duration = 320 }: { appId: string; duration?: number }
+ ) {
+  const sidebarIcon = document.querySelector(
+   `[data-sidebar-app-id="${appId}"]`
+  ) as HTMLElement | null;
+
+  const nodeRect = node.getBoundingClientRect();
+  const nodeCenterX = nodeRect.left + nodeRect.width / 2;
+  const nodeCenterY = nodeRect.top + nodeRect.height / 2;
+
+  let dx = 0;
+  let dy = 0;
+
+  if (sidebarIcon) {
+   const iconRect = sidebarIcon.getBoundingClientRect();
+   dx = iconRect.left + iconRect.width / 2 - nodeCenterX;
+   dy = iconRect.top + iconRect.height / 2 - nodeCenterY;
+  }
+
+  return {
+   duration,
+   easing: cubicOut,
+   css: (t: number, u: number) => `
+    transform-origin: center center;
+    transform: translate(${u * dx}px, ${u * dy}px) scale(${0.05 + 0.95 * t});
+    opacity: ${t};
+    filter: blur(${u * 6}px);
+   `
+  };
+ }
  import {
   windowState,
   closeWindow,
@@ -141,7 +183,8 @@
 				height: {window.height}px;
 				z-index: {window.zIndex};
 			"
-   transition:scale={{ duration: 200, easing: quintOut }}
+   in:scale={{ duration: 220, easing: quintOut, start: 0.85 }}
+   out:flyToSidebar={{ appId: window.id }}
    onmousedown={!isMobile ? () => bringToFront(window) : undefined}
   >
    <!-- Titlebar -->
@@ -368,6 +411,11 @@
  .resize-handle {
   position: absolute;
   z-index: 10;
+  transition: background-color 0.15s ease;
+ }
+
+ .resize-handle:hover {
+  background-color: rgba(203, 166, 247, 0.15);
  }
 
  .resize-handle.n,
@@ -402,36 +450,51 @@
   left: 0;
  }
 
+ /* Corner handles are deliberately larger than edge handles (16 vs 8)
+    so their hit area extends past the edges. Since corners come AFTER
+    edges in the DOM, they win the cursor at overlap points. */
  .resize-handle.ne,
  .resize-handle.nw,
  .resize-handle.se,
  .resize-handle.sw {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
+  z-index: 11;
+ }
+
+ .resize-handle.ne:hover,
+ .resize-handle.nw:hover,
+ .resize-handle.se:hover,
+ .resize-handle.sw:hover {
+  background-color: rgba(203, 166, 247, 0.22);
  }
 
  .resize-handle.ne {
   top: 0;
   right: 0;
   cursor: nesw-resize;
+  border-top-right-radius: 12px;
  }
 
  .resize-handle.nw {
   top: 0;
   left: 0;
   cursor: nwse-resize;
+  border-top-left-radius: 12px;
  }
 
  .resize-handle.se {
   bottom: 0;
   right: 0;
   cursor: nwse-resize;
+  border-bottom-right-radius: 12px;
  }
 
  .resize-handle.sw {
   bottom: 0;
   left: 0;
   cursor: nesw-resize;
+  border-bottom-left-radius: 12px;
  }
 
  /* Mobile */
