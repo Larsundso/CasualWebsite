@@ -30,6 +30,8 @@
   setYoutubeUrl,
   toggleSound,
   setSoundVolume,
+  setSoundPosition,
+  setMasterVolume,
   toggleYoutube,
   setYoutubeVolume,
   isYoutubePlaying,
@@ -87,6 +89,19 @@
   }))
  );
 
+ function updatePadFromEvent(e: PointerEvent, index: number) {
+  const pad = e.currentTarget as HTMLElement;
+  const rect = pad.getBoundingClientRect();
+  let x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  let y = 1 - ((e.clientY - rect.top) / rect.height) * 2;
+  const dist = Math.sqrt(x * x + y * y);
+  if (dist > 1) {
+   x /= dist;
+   y /= dist;
+  }
+  setSoundPosition(index, x, y);
+ }
+
  onMount(() => {
   const timer = setTimeout(() => {
    restoreSoundPlayback();
@@ -115,6 +130,23 @@
     barCount={128}
     mode="multiline"
    />
+  </div>
+  <div class="master-volume-row">
+   <span class="volume-icon">
+    <IconVolume size={16} stroke={1.5} />
+   </span>
+   <span class="master-volume-label">Master</span>
+   <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.01"
+    value={musicState.masterVolume}
+    oninput={(e) =>
+     setMasterVolume(parseFloat((e.target as HTMLInputElement).value))}
+    class="volume-slider"
+   />
+   <span class="volume-value">{Math.round(musicState.masterVolume * 100)}%</span>
   </div>
  </div>
 
@@ -361,6 +393,45 @@
        <span class="volume-value">{Math.round(sound.volume * 100)}%</span>
       </div>
      </div>
+
+     <!-- Spatial Position Pad -->
+     {#if sound.playing}
+     <div class="spatial-section">
+      <span class="spatial-label">Position</span>
+      <div
+       class="spatial-pad"
+       style="--dot-color: {getSoundColor(index)}"
+       onpointerdown={(e) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        updatePadFromEvent(e, index);
+       }}
+       onpointermove={(e) => {
+        if ((e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) {
+         updatePadFromEvent(e, index);
+        }
+       }}
+       onpointerup={(e) => {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+       }}
+      >
+       <div class="pad-crosshair-h"></div>
+       <div class="pad-crosshair-v"></div>
+       <span class="pad-label-f">F</span>
+       <span class="pad-label-b">B</span>
+       <div class="pad-center"></div>
+       <div
+        class="pad-dot"
+        style="left: {(sound.panX + 1) / 2 * 100}%; top: {(1 - sound.panY) / 2 * 100}%;"
+       ></div>
+      </div>
+      <span class="spatial-coords">
+       {sound.panX === 0 && sound.panY === 0 ? 'Center' :
+        `${sound.panX < -0.1 ? 'L' : sound.panX > 0.1 ? 'R' : ''}${sound.panY > 0.1 ? 'F' : sound.panY < -0.1 ? 'B' : ''}`
+        || 'Center'}
+      </span>
+     </div>
+     {/if}
     </div>
    {/each}
   </div>
@@ -399,6 +470,22 @@
  .master-visualizer-wrapper :global(canvas) {
   max-width: 100%;
   height: auto;
+ }
+
+ .master-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(203, 166, 247, 0.1);
+ }
+
+ .master-volume-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cba6f7;
+  min-width: 46px;
  }
 
  .presets-section {
@@ -849,6 +936,108 @@
   background: rgba(249, 226, 175, 0.1);
   border: 1px solid rgba(249, 226, 175, 0.3);
   border-radius: 6px;
+ }
+
+ /* Spatial Position Pad */
+ .spatial-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+ }
+
+ .spatial-label {
+  font-size: 11px;
+  color: #9399b2;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 52px;
+ }
+
+ .spatial-pad {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(203, 166, 247, 0.2);
+  border-radius: 50%;
+  cursor: crosshair;
+  touch-action: none;
+  flex-shrink: 0;
+  user-select: none;
+ }
+
+ .spatial-pad:hover {
+  border-color: rgba(203, 166, 247, 0.4);
+ }
+
+ .pad-crosshair-h {
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  top: 50%;
+  height: 1px;
+  background: rgba(205, 214, 244, 0.1);
+  pointer-events: none;
+ }
+
+ .pad-crosshair-v {
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 50%;
+  width: 1px;
+  background: rgba(205, 214, 244, 0.1);
+  pointer-events: none;
+ }
+
+ .pad-label-f,
+ .pad-label-b {
+  position: absolute;
+  font-size: 7px;
+  color: rgba(205, 214, 244, 0.3);
+  font-weight: 700;
+  pointer-events: none;
+  left: 50%;
+  transform: translateX(-50%);
+ }
+
+ .pad-label-f {
+  top: 2px;
+ }
+
+ .pad-label-b {
+  bottom: 2px;
+ }
+
+ .pad-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  background: rgba(205, 214, 244, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+ }
+
+ .pad-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--dot-color, #cba6f7);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px var(--dot-color, rgba(203, 166, 247, 0.8));
+  pointer-events: none;
+ }
+
+ .spatial-coords {
+  font-size: 11px;
+  color: #9399b2;
+  min-width: 40px;
  }
 
  .youtube-url-section {

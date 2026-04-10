@@ -26,9 +26,12 @@ export interface Sound {
  icon: string;
  playing: boolean;
  volume: number;
+ panX: number;
+ panY: number;
  audioElement?: HTMLAudioElement;
  audioContext?: AudioContext;
  analyser?: AnalyserNode;
+ panner?: PannerNode;
  source?: MediaElementAudioSourceNode;
 }
 
@@ -41,34 +44,23 @@ export interface SoundPreset {
 
 const SOUNDS_STATE_KEY = "music-sounds-state";
 const YOUTUBE_STATE_KEY = "music-youtube-state";
+const MASTER_VOLUME_KEY = "music-master-volume";
 
 function getDefaultSounds(): Sound[] {
  return [
-  { id: 1, name: "Rain", icon: "cloud-rain", playing: false, volume: 0.5 },
-  {
-   id: 2,
-   name: "Air Conditioner",
-   icon: "air-conditioning",
-   playing: false,
-   volume: 0.5,
-  },
-  { id: 3, name: "Cafe", icon: "coffee", playing: false, volume: 0.5 },
-  { id: 4, name: "City Traffic", icon: "car", playing: false, volume: 0.5 },
-  { id: 5, name: "White Noise", icon: "radio", playing: false, volume: 0.5 },
-  { id: 6, name: "Brown Noise", icon: "volume", playing: false, volume: 0.5 },
-  { id: 7, name: "Waterfall", icon: "droplet", playing: false, volume: 0.5 },
-  {
-   id: 8,
-   name: "Thunderstorm",
-   icon: "cloud-storm",
-   playing: false,
-   volume: 0.5,
-  },
-  { id: 9, name: "Hail", icon: "hexagon-3d", playing: false, volume: 0.5 },
-  { id: 10, name: "Fireplace", icon: "flame", playing: false, volume: 0.5 },
-  { id: 11, name: "Forest", icon: "tree", playing: false, volume: 0.5 },
-  { id: 12, name: "Birds", icon: "feather", playing: false, volume: 0.5 },
-  { id: 13, name: "Beach Waves", icon: "beach", playing: false, volume: 0.5 },
+  { id: 1, name: "Rain", icon: "cloud-rain", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 2, name: "Air Conditioner", icon: "air-conditioning", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 3, name: "Cafe", icon: "coffee", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 4, name: "City Traffic", icon: "car", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 5, name: "White Noise", icon: "radio", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 6, name: "Brown Noise", icon: "volume", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 7, name: "Waterfall", icon: "droplet", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 8, name: "Thunderstorm", icon: "cloud-storm", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 9, name: "Hail", icon: "hexagon-3d", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 10, name: "Fireplace", icon: "flame", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 11, name: "Forest", icon: "tree", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 12, name: "Birds", icon: "feather", playing: false, volume: 0.5, panX: 0, panY: 0 },
+  { id: 13, name: "Beach Waves", icon: "beach", playing: false, volume: 0.5, panX: 0, panY: 0 },
  ];
 }
 
@@ -89,6 +81,8 @@ function loadPersistedSoundsState(): Sound[] {
       ...sound,
       playing: savedSound.playing || false,
       volume: savedSound.volume ?? sound.volume,
+      panX: savedSound.panX ?? 0,
+      panY: savedSound.panY ?? 0,
      };
     }
     return sound;
@@ -140,6 +134,8 @@ function saveSoundsState() {
    icon: s.icon,
    playing: s.playing,
    volume: s.volume,
+   panX: s.panX,
+   panY: s.panY,
   }));
   localStorage.setItem(SOUNDS_STATE_KEY, JSON.stringify(stateToSave));
  } catch (error) {
@@ -170,6 +166,17 @@ function saveYoutubeState() {
 let masterAudioContext: AudioContext | null = null;
 let masterAnalyser = $state<AnalyserNode | null>(null);
 let masterGain: GainNode | null = null;
+let masterVolume = $state(loadMasterVolume());
+
+function loadMasterVolume(): number {
+ if (typeof localStorage === "undefined") return 0.8;
+ try {
+  const saved = localStorage.getItem(MASTER_VOLUME_KEY);
+  return saved ? parseFloat(saved) : 0.8;
+ } catch {
+  return 0.8;
+ }
+}
 
 const persistedYoutubeState = loadPersistedYoutubeState();
 
@@ -244,9 +251,20 @@ function attemptSoundPlayback(index: number) {
     sound.analyser = masterAudioContext.createAnalyser();
     sound.analyser.fftSize = 256;
 
+    sound.panner = masterAudioContext.createPanner();
+    sound.panner.panningModel = 'HRTF';
+    sound.panner.distanceModel = 'inverse';
+    sound.panner.refDistance = 10;
+    sound.panner.maxDistance = 100;
+    sound.panner.rolloffFactor = 1;
+    sound.panner.positionX.value = sound.panX * 3;
+    sound.panner.positionY.value = 0;
+    sound.panner.positionZ.value = -sound.panY * 3;
+
     const gain = masterAudioContext.createGain();
     sound.source.connect(sound.analyser);
-    sound.analyser.connect(gain);
+    sound.analyser.connect(sound.panner);
+    sound.panner.connect(gain);
     gain.connect(masterGain);
    }
   }
@@ -425,6 +443,7 @@ function initMasterAudioContext() {
   masterAnalyser = masterAudioContext.createAnalyser();
   masterAnalyser.fftSize = 256;
   masterGain = masterAudioContext.createGain();
+  masterGain.gain.value = masterVolume;
   masterGain.connect(masterAnalyser);
   masterAnalyser.connect(masterAudioContext.destination);
  }
@@ -522,7 +541,7 @@ function onPlayerReady(event: any) {
  isYoutubePlayerReady = true;
 
  if (youtubePlayer && youtubePlayer.setVolume && !isMobile) {
-  youtubePlayer.setVolume(youtubeVolume * 100);
+  youtubePlayer.setVolume(youtubeVolume * masterVolume * 100);
  }
 
  setTimeout(() => {
@@ -580,7 +599,7 @@ export function previousYoutubeVideo() {
  */
 export function setYoutubeVolume(volume: number) {
  youtubeVolume = volume;
- if (youtubePlayer && youtubePlayer.setVolume && !isMobile) youtubePlayer.setVolume(volume * 100);
+ if (youtubePlayer && youtubePlayer.setVolume && !isMobile) youtubePlayer.setVolume(volume * masterVolume * 100);
 
  saveYoutubeState();
 }
@@ -600,6 +619,22 @@ export function setYoutubeUrl(url: string) {
  youtubeUrl = url;
  saveYoutubeState();
  initYouTubePlayer();
+}
+
+/**
+ * Set master volume for all ambient sounds
+ */
+export function setMasterVolume(volume: number) {
+ masterVolume = volume;
+ if (masterGain) {
+  masterGain.gain.value = volume;
+ }
+ if (youtubePlayer && youtubePlayer.setVolume && !isMobile) {
+  youtubePlayer.setVolume(youtubeVolume * volume * 100);
+ }
+ if (typeof localStorage !== "undefined") {
+  localStorage.setItem(MASTER_VOLUME_KEY, String(volume));
+ }
 }
 
 /**
@@ -627,9 +662,20 @@ export function toggleSound(index: number) {
     sound.analyser = masterAudioContext.createAnalyser();
     sound.analyser.fftSize = 256;
 
+    sound.panner = masterAudioContext.createPanner();
+    sound.panner.panningModel = 'HRTF';
+    sound.panner.distanceModel = 'inverse';
+    sound.panner.refDistance = 10;
+    sound.panner.maxDistance = 100;
+    sound.panner.rolloffFactor = 1;
+    sound.panner.positionX.value = sound.panX * 3;
+    sound.panner.positionY.value = 0;
+    sound.panner.positionZ.value = -sound.panY * 3;
+
     const gain = masterAudioContext.createGain();
     sound.source.connect(sound.analyser);
-    sound.analyser.connect(gain);
+    sound.analyser.connect(sound.panner);
+    sound.panner.connect(gain);
     gain.connect(masterGain);
    }
   }
@@ -671,6 +717,26 @@ export function setSoundVolume(index: number, volume: number) {
 
  if (sound.audioElement) {
   sound.audioElement.volume = volume;
+ }
+
+ saveSoundsState();
+}
+
+/**
+ * Update ambient sound spatial position on the 2D plane
+ * panX: -1 (left) to 1 (right)
+ * panY: -1 (behind) to 1 (in front)
+ */
+export function setSoundPosition(index: number, panX: number, panY: number) {
+ const sound = sounds[index];
+ if (!sound) return;
+
+ sound.panX = Math.max(-1, Math.min(1, panX));
+ sound.panY = Math.max(-1, Math.min(1, panY));
+
+ if (sound.panner) {
+  sound.panner.positionX.value = sound.panX * 3;
+  sound.panner.positionZ.value = -sound.panY * 3;
  }
 
  saveSoundsState();
@@ -791,6 +857,9 @@ export const musicState = {
  },
  get sounds() {
   return sounds;
+ },
+ get masterVolume() {
+  return masterVolume;
  },
  get masterAnalyser() {
   return masterAnalyser;
