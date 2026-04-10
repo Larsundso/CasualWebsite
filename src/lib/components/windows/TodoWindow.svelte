@@ -55,6 +55,15 @@
  let newPriorityColor = $state("#cba6f7");
  let newPriorityOrder = $state(10);
 
+ /**
+  * Svelte action that focuses an element on mount.
+  * Replaces the `autofocus` attribute, which causes a11y warnings because
+  * screen readers announce unexpected focus changes.
+  */
+ function focusOnMount(node: HTMLElement) {
+  node.focus();
+ }
+
  function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return "203, 166, 247";
@@ -425,7 +434,7 @@
            if (e.key === "Enter") saveEditing(todo.id);
            if (e.key === "Escape") cancelEditing();
           }}
-          autofocus
+          use:focusOnMount
          />
          <div class="edit-options">
           <select bind:value={editingPriority} class="edit-priority-select">
@@ -552,6 +561,7 @@
         <div class="subtask-item">
          <button
           class="subtask-checkbox"
+          class:completed={subtask.completed}
           onclick={() => toggleSubtask(todo.id, subtask.id)}
          >
           {#if subtask.completed}
@@ -1151,7 +1161,7 @@
   background: rgba(203, 166, 247, 0.2);
  }
 
- .todo-checkbox:has(svg) {
+ .todo-item.completed .todo-checkbox {
   background: linear-gradient(135deg, #cba6f7, #f5c2e7);
   border-color: #cba6f7;
  }
@@ -1390,7 +1400,7 @@
   color: #1e1e2e;
  }
 
- .subtask-checkbox:has(svg) {
+ .subtask-checkbox.completed {
   background: linear-gradient(135deg, #cba6f7, #f5c2e7);
   border-color: #cba6f7;
  }
