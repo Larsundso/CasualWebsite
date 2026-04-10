@@ -40,26 +40,39 @@ async function getAccessToken(): Promise<string> {
 }
 
 /**
- * Make authenticated request to IGDB API
+ * Make authenticated request to IGDB API with timeout and retry
  */
-async function igdbRequest<T>(endpoint: string, body: string): Promise<T> {
+async function igdbRequest<T>(endpoint: string, body: string, retries = 5): Promise<T> {
 	const token = await getAccessToken();
 
-	const response = await fetch(`https://api.igdb.com/v4/${endpoint}`, {
-		method: "POST",
-		headers: {
-			"Client-ID": IGDB_CLIENT_ID,
-			Authorization: `Bearer ${token}`,
-			Accept: "application/json"
-		},
-		body
-	});
+	for (let attempt = 0; attempt <= retries; attempt++) {
+		try {
+			const response = await fetch(`https://api.igdb.com/v4/${endpoint}`, {
+				method: "POST",
+				headers: {
+					"Client-ID": IGDB_CLIENT_ID,
+					Authorization: `Bearer ${token}`,
+					Accept: "application/json"
+				},
+				body,
+				signal: AbortSignal.timeout(5_000)
+			});
 
-	if (!response.ok) {
-		throw new Error(`IGDB API error: ${response.status}`);
+			if (!response.ok) {
+				throw new Error(`IGDB API error: ${response.status}`);
+			}
+
+			return response.json() as Promise<T>;
+		} catch (error) {
+			if (attempt < retries) {
+				await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+				continue;
+			}
+			throw error;
+		}
 	}
 
-	return response.json() as Promise<T>;
+	throw new Error("IGDB request failed after retries");
 }
 
 // IGDB Types
